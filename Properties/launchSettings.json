@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Bilingual.Runtime.Godot.Net": {
+      "commandName": "Project"
+    },
+    "Run with Godot": {
+      "commandName": "Executable",
+      "executablePath": "$(ProgramFiles)\\Godot\\godot.exe",
+      "commandLineArgs": "--path \"$(MSBuildProjectDirectory)\" --verbose",
+      "nativeDebugging": true
+    }
+  }
+}
