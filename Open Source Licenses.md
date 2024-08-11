@@ -7,6 +7,7 @@ A list of the code licenses for the software used in Bilingual.Runtime.Godot.Net
 | Newtonsoft.Json.Bson | https://github.com/JamesNK/Newtonsoft.Json.Bson | MIT License | [License link](https://github.com/JamesNK/Newtonsoft.Json.Bson/blob/9709940da46319b7790d31a224c60f6de2beb965/LICENSE.md) | N/A |
 | CsvHelper | https://github.com/JoshClose/CsvHelper | MS-PL | [License Link](https://github.com/JoshClose/CsvHelper/blob/852bd465e0d460eb60013abdc07fff8f68f68a59/LICENSE.txt) | N/A |
 | JsonSubTypes | https://github.com/manuc66/JsonSubTypes | MIT License | [License Link](https://github.com/manuc66/JsonSubTypes/blob/9194b015745bb991b8eae42c18f3f06fa14f2aa4/LICENSE) | N/A |
+| BeginInvoke not supported on .NET core? (PlatformNotSupported exception) (answer) | https://stackoverflow.com/a/55516918 | CC BY-SA 4.0 | [License Link](https://creativecommons.org/licenses/by-sa/4.0/) | Altered syntax slightly to suit needs |
 
 ## License Texts
 

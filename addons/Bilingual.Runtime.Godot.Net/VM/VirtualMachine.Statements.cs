@@ -1,11 +1,15 @@
-﻿using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
+﻿using Bilingual.Runtime.Godot.Net.BilingualTypes.Containers;
+using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow;
+using Bilingual.Runtime.Godot.Net.Commands;
+using Bilingual.Runtime.Godot.Net.Exceptions;
 using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.Scopes;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Bilingual.Runtime.Godot.Net.VM
 {
@@ -13,6 +17,13 @@ namespace Bilingual.Runtime.Godot.Net.VM
     {
         /// <summary>The scopes of the running script.</summary>
         public Stack<Scope> Scopes = new Stack<Scope>(256);
+
+        /// <summary>While waiting for a choice to be made, hold onto the statement.</summary>
+        private ChooseStatement? storedChooseStatement;
+
+        /// <summary>Stores the loaded scripts.
+        /// Key is a string with the name of the script, value is the script itself.</summary>
+        public readonly Dictionary<string, Script> Scripts = [];
 
         /// <summary>The current excecuting scope.</summary>
         public Scope? CurrentScope
@@ -35,6 +46,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
         public BilingualResult GetNextLine()
         {
             if (CurrentScope is null) return new ScriptOver();
+            if (storedChooseStatement is not null) return new ErrorResult(ErrorReason.MustSelectChooseOption);
 
             var statement = CurrentScope.GetNextStatement();
 
@@ -72,6 +84,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 case DialogueStatement dialogueStatement:
                     return RunDialogueStatement(dialogueStatement);
 
+                case ChooseStatement:
                 case IfStatement:
                 case DoWhileStatement:
                 case WhileStatement:
@@ -97,11 +110,44 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     EvaluateExpression(incrementDecrement.Expression);
                     break;
 
+                case FunctionCallStatement functionCallStatement:
+                    _ = RunCommandStatement(functionCallStatement.Expression, false);
+                    break;
+
+                case RunStatement runStatement:
+                    LoadScript(runStatement.Script);
+                    break;
+
+                case InjectStatement injectStatement:
+                    return RunInjectStatement(injectStatement);
+
                 default:
                     throw new NotImplementedException();
             }
 
             return GetNextLine();
+        }
+
+        /// <summary>Load a script into the VM to run.
+        /// Call <see cref="GetNextLine"/> after to get the dialogue.</summary>
+        /// <param name="script">The script to inject.</param>
+        public void LoadScript(string script)
+        {
+            if (Scripts.TryGetValue(script, out Script? toLoad))
+            {
+                // get rid of old stuff
+                Scopes.Clear();
+                Scopes.Push(Scope.GlobalScope);
+                storedChooseStatement = null;
+
+                var newScope = new Scope(Scope.GlobalScope, this);
+                newScope.Statements.AddRange(toLoad.Block.Statements);
+                Scopes.Push(newScope);
+            }
+            else
+            {
+                throw new StatementErrorException($"{script} is has not been loaded.");
+            }
         }
 
         /// <summary>Run a dialogue statement.</summary>
@@ -135,9 +181,18 @@ namespace Bilingual.Runtime.Godot.Net.VM
             for (int i = 0; i < interpolated.Expressions.Count; i++)
             {
                 var expression = interpolated.Expressions[i];
-                var dialogueChunk = ValueToString(EvaluateExpression(expression));
+                string dialogueChunk;
+
+                if (expression is FunctionCallExpression function)
+                {
+                    dialogueChunk = RunCommandStatement(function, true) ?? "null";
+                }
+                else
+                {
+                    dialogueChunk = ValueToString(EvaluateExpression(expression));
+                }
+
                 dialogue += dialogueChunk;
-                // TODO: inline functions
             }
 
             return new DialogueResult(dialogue, statement);
@@ -199,6 +254,19 @@ namespace Bilingual.Runtime.Godot.Net.VM
             }
         }
 
+        /// <summary>Select an option for a choose statement.</summary>
+        /// <param name="option">The option to select.</param>
+        /// <exception cref="StatementErrorException">When there is no choose statement stored.</exception>
+        public void SelectOption(string option)
+        {
+            if (storedChooseStatement is null) throw new StatementErrorException("No stored choose statement.");
+            if (CurrentScope is null) throw new InvalidOperationException("There are no more scopes.");
+
+            var chooseScope = (ChooseScope)CurrentScope;
+            chooseScope.SelectOption(option);
+
+            storedChooseStatement = null;
+        }
 
         /// <summary>Run a blocked scope.</summary>
         /// <param name="statement">The blocked scope.</param>
@@ -233,11 +301,84 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     Scopes.Push(forScope);
                     break;
 
+                case ChooseStatement chooseStatement:
+                    var chooseScope = new ChooseScope(CurrentScope, this, chooseStatement);
+                    Scopes.Push(chooseScope);
+                    storedChooseStatement = chooseStatement;
+                    return new ChooseOptionsResult(chooseScope.GetOptions());
+
                 default:
                     throw new InvalidOperationException("This blocked scope is not recognized.");
             }
 
             //CurrentScope = Scopes.Peek();
+            return GetNextLine();
+        }
+
+        /// <summary>
+        /// Run a command (a function provided to the vm).
+        /// </summary>
+        /// <returns>A string or null.</returns>
+        /// <param name="funcExpression">The function to call.</param>
+        /// <param name="inline">If the command is being run inline.</param>
+        public string? RunCommandStatement(FunctionCallExpression funcExpression, bool inline)
+        {
+            var name = funcExpression.Name; // todo? accessors
+            List<object> parameters = [];
+
+            foreach (var param in funcExpression.Params.Expressions)
+            {
+                parameters.Add(EvaluateExpression(param));
+            }
+
+            if (CommandStore.Commands.TryGetValue(name, out SynchronousFunctionDelegate? sync))
+            {
+                sync(parameters);
+                return null;
+            }
+            else if (CommandStore.AsyncCommands.TryGetValue(name, out AsyncFunctionDelegate? async))
+            {
+                if (funcExpression.Await)
+                {
+                    // https://stackoverflow.com/a/55516918
+                    // this acts like 'await async(..)'
+                    var task = Task.Run(() => async(parameters));
+                    task.Wait();
+                }
+                else
+                {
+                    // run asyncronously
+                    async(parameters);
+                }
+                return null;
+            }
+            else if (inline && CommandStore.InlineCommands.TryGetValue(name, 
+                out InlineSyncronousFuncDelegate? inlineFunc))
+            {
+                return inlineFunc(parameters);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Cannot find {name} command.");
+            }
+        }
+
+        /// <summary>Run the inject statement.</summary>
+        /// <param name="inject">The script to inject.</param>
+        /// <returns>The next line of dialogue.</returns>
+        private BilingualResult RunInjectStatement(InjectStatement inject)
+        {
+            var scope = CurrentScope ?? throw new InvalidOperationException("CurrentScope should not be null");
+            
+            if (Scripts.TryGetValue(inject.Script, out Script? script))
+            {
+                scope.InjectStatements(script.Block);
+            }
+            else
+            {
+                throw new StatementErrorException($"{inject.Script} is not loaded.");
+            }
+
             return GetNextLine();
         }
     }

@@ -20,5 +20,8 @@ namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Statements
         {
             Statements = statements;
         }
+
+        // Shorthand to get statements.
+        public static implicit operator List<Statement>(Block b) => b.Statements;
     }
 }

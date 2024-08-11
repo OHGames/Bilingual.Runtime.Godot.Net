@@ -50,6 +50,13 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
             return statement;
         }
 
+        /// <summary>Insert new statements after the current one.</summary>
+        /// <param name="statements">The statements to inject.</param>
+        public void InjectStatements(List<Statement> statements)
+        {
+            Statements.InsertRange(currentStatement, statements);
+        }
+
         /// <summary>Add a new variable.</summary>
         /// <exception cref="Exception">If variable exists already.</exception>
         public void AddNewVariable(string name, object value)

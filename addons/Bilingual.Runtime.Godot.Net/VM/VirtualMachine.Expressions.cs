@@ -202,22 +202,8 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 case string lS:
                     return lS == (string)right;
 
-                case IEnumerable lE:
+                case IEnumerable:
                     // loop through and compare the value of the objects.
-                    //var rE = (IEnumerable)right;
-                    //var rEnumerator = rE.GetEnumerator();
-                    //foreach (var item in lE)
-                    //{
-                    //    if (!rEnumerator.MoveNext()) return false;
-
-                    //    if (AreTwoValuesEqual(item, rEnumerator.Current, out bool _))
-                    //        continue;
-                    //    else
-                    //    {
-                    //        return false;
-                    //    }
-                    //}
-                    //return true;
                     var listLeft = (List<object>)left;
                     var listRight = (List<object>)right;
                     if (listLeft.Count != listRight.Count) return false;

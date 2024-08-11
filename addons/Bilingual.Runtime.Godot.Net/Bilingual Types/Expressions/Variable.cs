@@ -9,7 +9,7 @@ namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
     public class Variable : Expression
     {
         public string Name { get; set; }
-        public List<Accessor> Accessors { get; set; } = [];
+        //public List<Accessor> Accessors { get; set; } = [];
 
         [Obsolete("Used by JSON only.")]
         private Variable()
@@ -17,10 +17,10 @@ namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
             // used by JSON.
         }
 
-        public Variable(string name, List<Accessor> accessors)
+        public Variable(string name)
         {
             Name = name;
-            Accessors = accessors;
+            //Accessors = accessors;
         }
     }
 }

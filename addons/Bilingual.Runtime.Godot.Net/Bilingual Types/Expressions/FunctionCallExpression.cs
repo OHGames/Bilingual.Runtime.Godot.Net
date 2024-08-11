@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
 {
@@ -9,8 +8,9 @@ namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
     public class FunctionCallExpression : Expression
     {
         public string Name { get; set; }
-        public List<Accessor> Accessors { get; set; } = [];
+        //public List<Accessor> Accessors { get; set; } = [];
         public Params Params { get; set; }
+        public bool Await { get; set; }
 
         [Obsolete("Used by JSON only.")]
         private FunctionCallExpression()
@@ -18,11 +18,12 @@ namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
             // used by JSON.
         }
 
-        public FunctionCallExpression(string name, List<Accessor> accessors, Params @params)
+        public FunctionCallExpression(string name, Params @params, bool async)
         {
             Name = name;
-            Accessors = accessors;
+            //Accessors = accessors;
             Params = @params;
+            Await = async;
         }
     }
 }

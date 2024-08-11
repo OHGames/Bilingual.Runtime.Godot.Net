@@ -7,6 +7,7 @@
     {
         Error,
         DialogueResult,
-        ScriptOver
+        ScriptOver,
+        ChooseOptions
     }
 }

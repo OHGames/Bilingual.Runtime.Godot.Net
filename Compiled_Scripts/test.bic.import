@@ -1,0 +1,14 @@
+[remap]
+
+importer="bilingual.script_file"
+type="BilingualFileResource"
+uid="uid://t0f8yhwn6ijy"
+path="res://.godot/imported/test.bic-ec2b68aa261769e5d724cc0a1534423a.gdbic"
+
+[deps]
+
+source_file="res://Compiled_Scripts/test.bic"
+dest_files=["res://.godot/imported/test.bic-ec2b68aa261769e5d724cc0a1534423a.gdbic"]
+
+[params]
+
