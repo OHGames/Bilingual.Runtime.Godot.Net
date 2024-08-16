@@ -1,5 +1,7 @@
 ﻿using Bilingual.Runtime.Godot.Net.BilingualTypes;
+using Bilingual.Runtime.Godot.Net.BilingualTypes.Containers;
 using Bilingual.Runtime.Godot.Net.Deserialization;
+using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.VM;
 using Godot;
 using Godot.Collections;
@@ -39,7 +41,7 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
             {
                 if (path is null) continue;
 
-                var file = deserializer.DeserializeFile(path.ResourcePath, UsesBson);
+                var file = deserializer.DeserializeFile(path.FilePath, UsesBson);
                 AddFile(file);
             }
 
@@ -61,8 +63,25 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         {
             foreach (var container in file.ScriptContainers)
             {
-                container.Scripts.ForEach(s => VirtualMachine.Scripts.TryAdd(s.Name, s));
+                container.Scripts.ForEach(s => VirtualMachine.Scripts.TryAdd(GetFullName(container, s), s));
             }
         }
+
+        private string GetFullName(ScriptContainer scriptContainer, Script script)
+        {
+            return scriptContainer.Name + "." + script.Name;
+        }
+
+        /// <summary>
+        /// Run a script. Call <see cref="GetNextLine"/> to get dialogue.
+        /// </summary>
+        /// <param name="name"></param>
+        public void RunScript(string name) => VirtualMachine.LoadScript(name);
+
+        /// <summary>
+        /// Return the next line of dialogue from the currently loaded script.
+        /// </summary>
+        /// <returns>A result.</returns>
+        public BilingualResult GetNextLine() => VirtualMachine.GetNextLine();
     }
 }

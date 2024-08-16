@@ -1,5 +1,6 @@
 using Bilingual.Runtime.Godot.Net.Commands;
 using Bilingual.Runtime.Godot.Net.Deserialization;
+using Bilingual.Runtime.Godot.Net.Nodes;
 using Bilingual.Runtime.Godot.Net.Scopes;
 using Bilingual.Runtime.Godot.Net.VM;
 using Godot;
@@ -11,24 +12,21 @@ namespace Bilingual.Runtime.Godot.Net
     public partial class Test : Node2D
     {
 
-        public override void _EnterTree()
+        public override void _Ready()
         {
-            var vm = new VirtualMachine();
-            var deserializer = new Deserializer();
-            var file = deserializer.DeserializeFile("res://Compiled_Scripts/test.bic", false);
-
-            Scope.GlobalScope.Statements.AddRange(file.ScriptContainers[0].Scripts[0].Block.Statements);
-
             CommandStore.AddCommand($"Test.{nameof(TestCommand)}", TestCommand);
             CommandStore.AddCommand($"Test.{nameof(AsyncTestCommand)}", AsyncTestCommand);
 
-            var line = vm.GetNextLine();
-            var line1 = vm.GetNextLine();
-            var line2 = vm.GetNextLine();
-            var line3 = vm.GetNextLine();
-            var line4 = vm.GetNextLine();
-            var line5 = vm.GetNextLine();
-            var line6 = vm.GetNextLine();
+            var runner = GetNode<DialogueRunner>("DialogueRunner");
+            runner.RunScript("Test.Wow.Wow");
+
+            var line = runner.GetNextLine();
+            var line1 = runner.GetNextLine();
+            var line2 = runner.GetNextLine();
+            var line3 = runner.GetNextLine();
+            var line4 = runner.GetNextLine();
+            var line5 = runner.GetNextLine();
+            var line6 = runner.GetNextLine();
         }
 
         public void TestCommand(List<object> parameters)

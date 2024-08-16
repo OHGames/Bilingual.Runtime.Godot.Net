@@ -20,9 +20,6 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
         /// <summary>The parent scope.</summary>
         public Scope? ParentScope { get; set; } = parentScope;
 
-        /// <summary>This scope's children.</summary>
-        public List<Scope> ChildScopes { get; set; } = [];
-
         /// <summary>The global scope. It has no parent. 
         /// This is the most distant <see cref="ParentScope"/> for all scopes.
         /// The Virtual Machine will be set later.</summary>

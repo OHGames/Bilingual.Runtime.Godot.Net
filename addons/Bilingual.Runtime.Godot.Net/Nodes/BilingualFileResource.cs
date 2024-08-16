@@ -3,12 +3,16 @@
 namespace Bilingual.Runtime.Godot.Net.Nodes
 {
     /// <summary>
-    /// Represents a .bic file. An empty resource lets us drag and drop files and move them around the file system.
+    /// Points to a .bic file.
     /// </summary>
     [Icon("res://addons/Bilingual.Runtime.Godot.Net/Assets/bilingual_file_tiny_optimized.svg")]
     [GlobalClass]
     public partial class BilingualFileResource : Resource
     {
-
+        /// <summary>
+        /// The path to the .bic file this resource points to.
+        /// </summary>
+        [Export(PropertyHint.File, "*.bic,*.json")]
+        public string FilePath { get; set; } = "";
     }
 }
