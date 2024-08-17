@@ -5,7 +5,8 @@ namespace Bilingual.Runtime.Godot.Net.Results
     /// <summary>
     /// Dialogue from the <see cref="VirtualMachine"/>.
     /// </summary>
-    public class DialogueResult(string dialogue, DialogueStatement dialogueStatement) : BilingualResult
+    public class DialogueResult(string dialogue, DialogueStatement dialogueStatement, 
+        bool wasPaused) : BilingualResult
     {
         /// <summary>The dialogue.</summary>
         public string Dialogue { get; } = dialogue;
@@ -21,6 +22,10 @@ namespace Bilingual.Runtime.Godot.Net.Results
 
         /// <summary>A special comment for translators.</summary>
         public string? TranslationComment { get; } = dialogueStatement.TranslationComment;
+
+        /// <summary>If the dialogue line was inline paused. If this is true,
+        /// the <see cref="Dialogue"/> is the remaining text. Tack it onto the previous.</summary>
+        public bool WasPaused { get; set; } = wasPaused;
 
         public override ResultType Type => ResultType.DialogueResult;
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Bilingual.Runtime.Godot.Net.Commands
 {
@@ -29,7 +30,8 @@ namespace Bilingual.Runtime.Godot.Net.Commands
         /// <param name="function">The function.</param>
         public static void AddCommand(string name, SynchronousFunctionDelegate function)
         {
-            _ = Commands.TryAdd(name, function);
+            var success = Commands.TryAdd(name, function);
+            if (!success) throw new InvalidOperationException($"Command, {name}, already added.");
         }
 
         /// <summary>
@@ -39,7 +41,8 @@ namespace Bilingual.Runtime.Godot.Net.Commands
         /// <param name="function">The function.</param>
         public static void AddCommand(string name, AsyncFunctionDelegate function)
         {
-            _ = AsyncCommands.TryAdd(name, function);
+            var success = AsyncCommands.TryAdd(name, function);
+            if (!success) throw new InvalidOperationException($"Command, {name}, already added.");
         }
 
         /// <summary>
@@ -49,7 +52,8 @@ namespace Bilingual.Runtime.Godot.Net.Commands
         /// <param name="func">The function.</param>
         public static void AddInlineCommand(string name, InlineSyncronousFuncDelegate func)
         {
-            _ = InlineCommands.TryAdd(name, func);
+            var success = InlineCommands.TryAdd(name, func);
+            if (!success) throw new InvalidOperationException($"Command, {name}, already added.");
         }
     }
 }

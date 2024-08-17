@@ -8,7 +8,6 @@ namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Statements
     /// </summary>
     public class DialogueStatement : Statement
     {
-
         /// <summary>The name of the character.</summary>
         public string Name { get; set; }
 
@@ -38,6 +37,20 @@ namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Statements
             Dialogue = dialogue;
             LineId = lineId;
             TranslationComment = translationComment;
+        }
+
+        /// <summary>Copy the statement with a different string.</summary>
+        /// <param name="str">The new dialogue.</param>
+        /// <returns>A new statement.</returns>
+        internal DialogueStatement CopyWithNewDialogue(InterpolatedString str)
+        {
+            return new DialogueStatement(Name, Emotion, str, LineId, TranslationComment);
+        }
+
+        /// <summary>Copy the statement.</summary>
+        internal DialogueStatement Copy()
+        {
+            return new DialogueStatement(Name, Emotion, Dialogue, LineId, TranslationComment);
         }
     }
 }

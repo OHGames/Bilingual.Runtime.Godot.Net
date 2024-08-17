@@ -21,6 +21,12 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <summary>While waiting for a choice to be made, hold onto the statement.</summary>
         private ChooseStatement? storedChooseStatement;
 
+        /// <summary>While waiting for an inline Wait, store the rest of the statement.</summary>
+        private DialogueStatement? storedDialogueStatement;
+
+        /// <summary>The full line for <see cref="storedDialogueStatement"/>.</summary>
+        private string previousLineFullText = "";
+
         /// <summary>Stores the loaded scripts.
         /// Key is a string with the name of the script, value is the script itself.</summary>
         public readonly Dictionary<string, Script> Scripts = [];
@@ -47,6 +53,14 @@ namespace Bilingual.Runtime.Godot.Net.VM
         {
             if (CurrentScope is null) return new ScriptOver();
             if (storedChooseStatement is not null) return new ErrorResult(ErrorReason.MustSelectChooseOption);
+            if (storedDialogueStatement is not null)
+            {
+                var copyStored = storedDialogueStatement.Copy();
+                // set null before so we dont keep calling the stored when we dont need it
+                // if this block needs to run again, RunInterpolatedDialogue will set it again
+                storedDialogueStatement = null;
+                return RunInterpolatedDialogue(copyStored, true);
+            }
 
             var statement = CurrentScope.GetNextStatement();
 
@@ -111,7 +125,15 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     break;
 
                 case FunctionCallStatement functionCallStatement:
-                    _ = RunCommandStatement(functionCallStatement.Expression, false);
+                    var expr = functionCallStatement.Expression;
+                    if (CheckBuiltInCommands(expr.Name))
+                    {
+                        return RunBuiltInCommand(expr.Name, expr);
+                    }
+                    else
+                    {
+                        _ = RunCommandStatement(functionCallStatement.Expression, false);
+                    }
                     break;
 
                 case RunStatement runStatement:
@@ -160,11 +182,11 @@ namespace Bilingual.Runtime.Godot.Net.VM
             var dialogueText = EvaluateExpression(statement.Dialogue);
             if (dialogueText is string dialogueStr)
             {
-                return new DialogueResult(dialogueStr, statement);
+                return new DialogueResult(dialogueStr, statement, false);
             }
             else if (dialogueText is InterpolatedString)
             {
-                return RunInterpolatedDialogue(statement);
+                return RunInterpolatedDialogue(statement, false);
             }
 
             throw new InvalidOperationException("Dialogue expression not supported.");
@@ -172,8 +194,11 @@ namespace Bilingual.Runtime.Godot.Net.VM
 
         /// <summary>Run a dialogue statement with an interpolated string.</summary>
         /// <param name="statement">The dialogue statement.</param>
+        /// <param name="moreLeft">If there is more of the line left.</param>
+        /// <param name="getFullString">If the call is actually getting the full text of the statement.</param>
         /// <returns>A <see cref="DialogueResult"/>.</returns>
-        public BilingualResult RunInterpolatedDialogue(DialogueStatement statement)
+        private DialogueResult RunInterpolatedDialogue(DialogueStatement statement, bool prevPaused, 
+            bool getFullString = false)
         {
             var interpolated = (InterpolatedString)statement.Dialogue;
             var dialogue = "";
@@ -181,11 +206,33 @@ namespace Bilingual.Runtime.Godot.Net.VM
             for (int i = 0; i < interpolated.Expressions.Count; i++)
             {
                 var expression = interpolated.Expressions[i];
-                string dialogueChunk;
+                string dialogueChunk = "";
 
                 if (expression is FunctionCallExpression function)
                 {
-                    dialogueChunk = RunCommandStatement(function, true) ?? "null";
+                    if (CheckBuiltInCommands(function.Name))
+                    {
+                        // Built in commands should not return anything right now (only 1 so far),
+                        // so only run when not getting a full string.
+                        if (!getFullString)
+                        {
+                            var seconds = GetWaitTime(function);
+                            // Get the interpolated dialogue with functions removed.
+                            var fullString = previousLineFullText + RunInterpolatedDialogue(statement, 
+                                prevPaused, true).Dialogue;
+                            var rest = new InterpolatedString(interpolated.Expressions[(i + 1) ..]);
+
+                            // copy the statement so the original is not altered.
+                            storedDialogueStatement = statement.CopyWithNewDialogue(rest);
+
+                            return new ScriptPausedInlineResult(dialogue, statement, seconds, 
+                                prevPaused ? "" : fullString, prevPaused);
+                        }
+                    }
+                    else
+                    {
+                        dialogueChunk = RunCommandStatement(function, true) ?? "null";
+                    }
                 }
                 else
                 {
@@ -195,7 +242,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 dialogue += dialogueChunk;
             }
 
-            return new DialogueResult(dialogue, statement);
+            return new DialogueResult(dialogue, statement, prevPaused);
         }
 
         /// <summary>Convert an object to a string.</summary>
@@ -380,6 +427,44 @@ namespace Bilingual.Runtime.Godot.Net.VM
             }
 
             return GetNextLine();
+        }
+
+        /// <summary>Check if a function name is a built-in command.</summary>
+        /// <param name="name">Name of the function.</param>
+        /// <returns>True if built in.</returns>
+        private static bool CheckBuiltInCommands(string name)
+        {
+            return name == "Wait";
+        }
+
+        /// <summary>Run a built in command.</summary>
+        /// <param name="name">The function name.</param>
+        /// <param name="expression">The function call.</param>
+        /// <returns>A bilingual result.</returns>
+        private BilingualResult RunBuiltInCommand(string name, FunctionCallExpression expression)
+        {
+            return name switch
+            {
+                "Wait" => RunWaitCommand(expression),
+                _ => throw new InvalidOperationException("Built-in command does not exist")
+            };
+        }
+
+        /// <summary>Run a wait command.</summary>
+        /// <param name="expression">The call.</param>
+        /// <returns>A <see cref="ScriptPausedResult"/> result.</returns>
+        private ScriptPausedResult RunWaitCommand(FunctionCallExpression expression)
+        {
+            return new ScriptPausedResult(GetWaitTime(expression));
+        }
+
+        /// <summary>Get the wait time of the <c>Wait(double)</c> command.</summary>
+        /// <param name="expression">The function.</param>
+        /// <returns>How long.</returns>
+        private double GetWaitTime(FunctionCallExpression expression)
+        {
+            var secondsExpr = expression.Params.Expressions[0];
+            return EvaluateExpression<double>(secondsExpr);
         }
     }
 }

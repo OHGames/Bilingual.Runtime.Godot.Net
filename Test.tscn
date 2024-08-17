@@ -14,3 +14,23 @@ script = ExtResource("1_03vpa")
 [node name="DialogueRunner" type="Node" parent="."]
 script = ExtResource("2_66omp")
 FilePaths = [SubResource("Resource_fp1y7")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+unique_name_in_owner = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -359.0
+offset_top = -58.0
+offset_right = 359.0
+offset_bottom = 59.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+text = "Yay!"
+horizontal_alignment = 1
+vertical_alignment = 1

@@ -8,6 +8,8 @@
         Error,
         DialogueResult,
         ScriptOver,
-        ChooseOptions
+        ChooseOptions,
+        ScriptPaused,
+        ScriptPausedInline
     }
 }
