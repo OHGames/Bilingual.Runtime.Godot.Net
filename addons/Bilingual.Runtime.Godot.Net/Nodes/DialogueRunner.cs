@@ -101,6 +101,7 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
             }
         }
 
+        /// <summary>Get the full name seperated by '.'</summary>
         private string GetFullName(ScriptContainer scriptContainer, Script script)
         {
             return scriptContainer.Name + "." + script.Name;
@@ -117,7 +118,6 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// </summary>
         /// <returns>A result.</returns>
         public BilingualResult GetNextLine() => VirtualMachine.GetNextLine();
-
 
         /// <summary>Add a new callback for when dialogue is paused.
         /// Only called when <see cref="UseVmToWait"/> is true.

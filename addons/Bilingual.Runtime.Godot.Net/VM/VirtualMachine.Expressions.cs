@@ -70,6 +70,24 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 // RunInterpolatedDialogue will evaluate this so just return the object.
                 return interpolated;
             }
+            else if (expression is ArrayAccess access)
+            {
+                var enumerable = EvaluateExpression<IEnumerable>(access.Object);
+                var indexDouble = EvaluateExpression<double>(access.Indexer);
+                // C# needs an explicit cast made by a dev,
+                // the generic cast in EvaluateExpression throws an exception.
+                var index = (int)indexDouble;
+
+                var i = 0;
+                foreach (var item in enumerable)
+                {
+                    if (i == index) return item;
+                    i++;
+                }
+
+                // index out of bounds
+                throw new ExpressionEvaluationException("Indexer is out of bounds.");
+            }
 
             throw new InvalidExpressionException("Cannot evaluate a value for this expression.");
         }
