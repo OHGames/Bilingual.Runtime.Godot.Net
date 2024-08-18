@@ -82,11 +82,11 @@ namespace Bilingual.Runtime.Godot.Net.VM
         {
             if (UseVmToWait && paused)
             {
-                return new ErrorResult(ErrorReason.ScriptPaused);
+                return new WarningResult(WarningReason.ScriptPaused);
             }
 
             if (CurrentScope is null) return new ScriptOver();
-            if (storedChooseStatement is not null) return new ErrorResult(ErrorReason.MustSelectChooseOption);
+            if (storedChooseStatement is not null) return new WarningResult(WarningReason.MustSelectChooseOption);
             if (storedDialogueStatement is not null)
             {
                 var copyStored = storedDialogueStatement.Copy();

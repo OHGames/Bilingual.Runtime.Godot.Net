@@ -11,8 +11,6 @@ namespace Bilingual.Runtime.Godot.Net.Results
     public partial class ScriptPausedInlineResult(string dialogue, DialogueStatement dialogueStatement, double seconds,
         string fullDialogue, bool wasPaused) : DialogueResult(dialogue, dialogueStatement, wasPaused)
     {
-        public override ResultType Type => ResultType.ScriptPausedInline;
-
         /// <summary>
         /// The amount of seconds paused.
         /// </summary>

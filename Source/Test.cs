@@ -48,8 +48,8 @@ namespace Bilingual.Runtime.Godot.Net
                         label.Text = $"{dialogue.Character}: {dialogue.Dialogue}";
                     break;
 
-                case ErrorResult error:
-                    GD.PushWarning(error.ErrorReason);
+                case WarningResult error:
+                    GD.PushWarning(error.WarningReason);
                     break;
 
                 default:

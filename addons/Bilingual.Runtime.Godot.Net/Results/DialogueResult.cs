@@ -26,7 +26,5 @@ namespace Bilingual.Runtime.Godot.Net.Results
         /// <summary>If the dialogue line was inline paused. If this is true,
         /// the <see cref="Dialogue"/> is the remaining text. Tack it onto the previous.</summary>
         public bool WasPaused { get; set; } = wasPaused;
-
-        public override ResultType Type => ResultType.DialogueResult;
     }
 }

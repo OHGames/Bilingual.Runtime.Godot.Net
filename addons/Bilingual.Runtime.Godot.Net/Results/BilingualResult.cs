@@ -7,7 +7,6 @@ namespace Bilingual.Runtime.Godot.Net.Results
     /// </summary>
     public abstract partial class BilingualResult : RefCounted
     {
-        /// <summary>The result type. A quick way to check the type of result.</summary>
-        public abstract ResultType Type { get; }
+        
     }
 }
