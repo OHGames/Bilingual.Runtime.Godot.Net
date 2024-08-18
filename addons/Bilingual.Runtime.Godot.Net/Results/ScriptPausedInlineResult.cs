@@ -8,7 +8,7 @@ namespace Bilingual.Runtime.Godot.Net.Results
     /// this case must be above the <see cref="DialogueResult"/> case. Or, the case that handles
     /// <see cref="DialogueResult"/> uses a case gaurd to check when the type <c>is not ScriptPausedInlineResult</c>.
     /// </summary>
-    public class ScriptPausedInlineResult(string dialogue, DialogueStatement dialogueStatement, double seconds,
+    public partial class ScriptPausedInlineResult(string dialogue, DialogueStatement dialogueStatement, double seconds,
         string fullDialogue, bool wasPaused) : DialogueResult(dialogue, dialogueStatement, wasPaused)
     {
         public override ResultType Type => ResultType.ScriptPausedInline;

@@ -3,7 +3,7 @@
     /// <summary>
     /// The script has been paused by a Wait() function.
     /// </summary>
-    public class ScriptPausedResult(double seconds) : BilingualResult
+    public partial class ScriptPausedResult(double seconds) : BilingualResult
     {
         public override ResultType Type => ResultType.ScriptPaused;
 

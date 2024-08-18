@@ -1,9 +1,6 @@
 using Bilingual.Runtime.Godot.Net.Commands;
-using Bilingual.Runtime.Godot.Net.Deserialization;
 using Bilingual.Runtime.Godot.Net.Nodes;
 using Bilingual.Runtime.Godot.Net.Results;
-using Bilingual.Runtime.Godot.Net.Scopes;
-using Bilingual.Runtime.Godot.Net.VM;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -24,9 +21,12 @@ namespace Bilingual.Runtime.Godot.Net
 
             runner = GetNode<DialogueRunner>("DialogueRunner");
             label = GetNode<Label>("%Label");
+            if (runner is null) throw new InvalidOperationException("Node cannot be found.");
+
+            runner.DialoguePaused += (result) => dialoguePaused = true;
+            runner.DialogueResumed += () => dialoguePaused = false;
 
             runner.RunScript("Test.Wow.Wow");
-            if (runner is null) throw new InvalidOperationException("Node cannot be found.");
         }
 
         public override void _PhysicsProcess(double delta)
@@ -41,25 +41,15 @@ namespace Bilingual.Runtime.Godot.Net
             var line = runner.GetNextLine();
             switch (line)
             {
-                case DialogueResult dialogue when line is not ScriptPausedInlineResult:
+                case DialogueResult dialogue:
                     if (dialogue.WasPaused)
                         label.Text += dialogue.Dialogue;
                     else
                         label.Text = $"{dialogue.Character}: {dialogue.Dialogue}";
                     break;
 
-                case ScriptPausedResult paused:
-                    dialoguePaused = true;
-                    Wait(paused.Seconds);
-                    break;
-
-                case ScriptPausedInlineResult inline:
-                    if (inline.WasPaused)
-                        label.Text += inline.Dialogue;
-                    else
-                        label.Text = $"{inline.Character}: {inline.Dialogue}";
-                    dialoguePaused = true;
-                    Wait(inline.Seconds);
+                case ErrorResult error:
+                    GD.PushWarning(error.ErrorReason);
                     break;
 
                 default:
@@ -67,14 +57,14 @@ namespace Bilingual.Runtime.Godot.Net
             }
         }
 
-        private void Wait(double seconds)
-        {
-            var timer = GetTree().CreateTimer(seconds);
-            timer.Timeout += () =>
-            {
-                dialoguePaused = false;
-            };
-        }
+        //private void Wait(double seconds)
+        //{
+        //    var timer = GetTree().CreateTimer(seconds);
+        //    timer.Timeout += () =>
+        //    {
+        //        dialoguePaused = false;
+        //    };
+        //}
 
         public void TestCommand(List<object> parameters)
         {

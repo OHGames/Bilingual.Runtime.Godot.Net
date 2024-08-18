@@ -5,7 +5,7 @@ namespace Bilingual.Runtime.Godot.Net.Results
     /// <summary>
     /// Dialogue from the <see cref="VirtualMachine"/>.
     /// </summary>
-    public class DialogueResult(string dialogue, DialogueStatement dialogueStatement, 
+    public partial class DialogueResult(string dialogue, DialogueStatement dialogueStatement, 
         bool wasPaused) : BilingualResult
     {
         /// <summary>The dialogue.</summary>

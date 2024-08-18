@@ -4,12 +4,16 @@ using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow;
 using Bilingual.Runtime.Godot.Net.Commands;
 using Bilingual.Runtime.Godot.Net.Exceptions;
+using Bilingual.Runtime.Godot.Net.Nodes;
 using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.Scopes;
+using Godot;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using Script = Bilingual.Runtime.Godot.Net.BilingualTypes.Containers.Script;
 
 namespace Bilingual.Runtime.Godot.Net.VM
 {
@@ -31,6 +35,31 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// Key is a string with the name of the script, value is the script itself.</summary>
         public readonly Dictionary<string, Script> Scripts = [];
 
+        /// <summary>If the VM should wait instead of having the user
+        /// handle wait statements. If this is true (which it is by default), 
+        /// the timer will be created and no dialogue can be called until wait 
+        /// is over. Turn this off to control the specific timing
+        /// for wait statements. The VM will use the <see cref="SceneTree.CreateTimer(double, bool, bool, bool)"/> default
+        /// settings for determinig the time to wait.</summary>
+        public bool UseVmToWait { get; set; } = true;
+
+        /// <summary>When the dialogue becomes paused.
+        /// Helpful when <see cref="UseVmToWait"/> is true.</summary>
+        /// <param name="result">The dialogue result. Can be inline or not.</param>
+        public delegate void DialoguePaused(BilingualResult result);
+
+        /// <summary>Emits the dialogue runner signal <see cref="DialogueRunner.DialoguePaused"/>.</summary>
+        internal DialoguePaused PausedCallback = delegate { };
+
+        /// <summary>Emits the dialogue runner signal <see cref="DialogueRunner.DialogueResumed"/>.</summary>
+        internal Action ResumedCallback = delegate { };
+
+        /// <summary>If dialogue is paused.</summary>
+        private bool paused;
+
+        /// <summary>The scene tree.</summary>
+        public SceneTree? tree;
+
         /// <summary>The current excecuting scope.</summary>
         public Scope? CurrentScope
         {
@@ -51,6 +80,11 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <returns>A <see cref="BilingualResult"/>.</returns>
         public BilingualResult GetNextLine()
         {
+            if (UseVmToWait && paused)
+            {
+                return new ErrorResult(ErrorReason.ScriptPaused);
+            }
+
             if (CurrentScope is null) return new ScriptOver();
             if (storedChooseStatement is not null) return new ErrorResult(ErrorReason.MustSelectChooseOption);
             if (storedDialogueStatement is not null)
@@ -225,8 +259,17 @@ namespace Bilingual.Runtime.Godot.Net.VM
                             // copy the statement so the original is not altered.
                             storedDialogueStatement = statement.CopyWithNewDialogue(rest);
 
-                            return new ScriptPausedInlineResult(dialogue, statement, seconds, 
+                            var result = new ScriptPausedInlineResult(dialogue, statement, seconds, 
                                 prevPaused ? "" : fullString, prevPaused);
+
+                            if (UseVmToWait)
+                            {
+                                paused = true;
+                                StartWait(seconds);
+                                PausedCallback(result);
+                            }
+
+                            return result;
                         }
                     }
                     else
@@ -455,7 +498,16 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <returns>A <see cref="ScriptPausedResult"/> result.</returns>
         private ScriptPausedResult RunWaitCommand(FunctionCallExpression expression)
         {
-            return new ScriptPausedResult(GetWaitTime(expression));
+            var result = new ScriptPausedResult(GetWaitTime(expression));
+
+            if (UseVmToWait)
+            {
+                paused = true;
+                StartWait(result.Seconds);
+                PausedCallback(result);
+            }
+
+            return result;
         }
 
         /// <summary>Get the wait time of the <c>Wait(double)</c> command.</summary>
@@ -465,6 +517,21 @@ namespace Bilingual.Runtime.Godot.Net.VM
         {
             var secondsExpr = expression.Params.Expressions[0];
             return EvaluateExpression<double>(secondsExpr);
+        }
+
+        /// <summary>Wait for dialogue.</summary>
+        /// <param name="seconds"></param>
+        /// <exception cref="InvalidOperationException"></exception>
+        private void StartWait(double seconds)
+        {
+            if (tree is null) throw new InvalidOperationException("Scene tree is null");
+
+            var timer = tree.CreateTimer(seconds);
+            timer.Timeout += () =>
+            {
+                paused = false;
+                ResumedCallback();
+            };
         }
     }
 }

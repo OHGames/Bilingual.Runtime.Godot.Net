@@ -5,6 +5,8 @@ using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.VM;
 using Godot;
 using Godot.Collections;
+using System;
+
 
 // There is a conflict between Godot scripts and bilingual scripts.
 using Script = Bilingual.Runtime.Godot.Net.BilingualTypes.Containers.Script;
@@ -26,6 +28,17 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         [Signal]
         public delegate void ScriptsLoadedEventHandler();
 
+        /// <summary>When the dialogue is paused.
+        /// Only called when <see cref="UseVmToWait"/> is true.</summary>
+        /// <param name="result">The dialogue result.</param>
+        [Signal]
+        public delegate void DialoguePausedEventHandler(BilingualResult result);
+
+        /// <summary>When the dialogue is resumed.
+        /// Only called when <see cref="UseVmToWait"/> is true.</summary>
+        [Signal]
+        public delegate void DialogueResumedEventHandler();
+
         /// <summary>The file paths of files to add when ready.</summary>
         [Export]
         public Array<BilingualFileResource> FilePaths { get; set; } = [];
@@ -33,6 +46,18 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// <summary>If the files are serialized using BSON.</summary>
         [Export]
         public bool UsesBson { get; set; } = false;
+
+        /// <summary>If the VM should wait instead of having the user
+        /// handle wait statements. If this is true (which it is by default), 
+        /// the timer will be created and no dialogue can be called until wait 
+        /// is over. Turn this off to control the specific timing
+        /// for wait statements. The VM will use the <see cref="SceneTree.CreateTimer(double, bool, bool, bool)"/> default
+        /// settings for determinig the time to wait.</summary>
+        public bool UseVmToWait
+        {
+            get => VirtualMachine.UseVmToWait;
+            set => VirtualMachine.UseVmToWait = value;
+        }
 
         public override void _Ready()
         {
@@ -46,6 +71,15 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
             }
 
             EmitSignal(SignalName.ScriptsLoaded);
+        }
+
+        public override void _EnterTree()
+        {
+            VirtualMachine.tree = GetTree();
+
+            // The VM is not a node so just call these functions.
+            VirtualMachine.PausedCallback += CallPausedCallback;
+            VirtualMachine.ResumedCallback += CallResumedCallback;
         }
 
         /// <summary>Add a script. Scripts must be added in order to be run first.
@@ -83,5 +117,20 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// </summary>
         /// <returns>A result.</returns>
         public BilingualResult GetNextLine() => VirtualMachine.GetNextLine();
+
+
+        /// <summary>Add a new callback for when dialogue is paused.
+        /// Only called when <see cref="UseVmToWait"/> is true.
+        /// Signals are not used because this class is not a Node.</summary>
+        /// <param name="paused">The paused callback function.</param>
+        public void CallPausedCallback(BilingualResult result) 
+            => EmitSignal(SignalName.DialoguePaused, result);
+
+        /// <summary>Add a new callback for when dialogue is resumed.
+        /// Only called when <see cref="UseVmToWait"/> is true.
+        /// Signals are not used because this class is not a Node.</summary>
+        /// <param name="action">The resumed callback function.</param>
+        private void CallResumedCallback()
+            => EmitSignal(SignalName.DialogueResumed);
     }
 }

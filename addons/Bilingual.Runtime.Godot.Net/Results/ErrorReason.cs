@@ -10,6 +10,11 @@
         /// This error is returned when you try to get the next line of dialogue while the choose
         /// statement is waiting.
         /// </summary>
-        MustSelectChooseOption
+        MustSelectChooseOption,
+
+        /// <summary>
+        /// The script has been paused and is awaiting a timer to complete.
+        /// </summary>
+        ScriptPaused
     }
 }

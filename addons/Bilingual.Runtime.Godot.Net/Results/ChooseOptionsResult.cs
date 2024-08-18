@@ -5,7 +5,7 @@ namespace Bilingual.Runtime.Godot.Net.Results
     /// <summary>
     /// Choose one of the options presented.
     /// </summary>
-    public class ChooseOptionsResult(List<string> options) : BilingualResult
+    public partial class ChooseOptionsResult(List<string> options) : BilingualResult
     {
         public override ResultType Type => ResultType.ChooseOptions;
 

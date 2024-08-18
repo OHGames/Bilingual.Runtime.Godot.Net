@@ -3,7 +3,7 @@
     /// <summary>
     /// When the script has finished running.
     /// </summary>
-    public class ScriptOver : BilingualResult
+    public partial class ScriptOver : BilingualResult
     {
         public override ResultType Type => ResultType.ScriptOver;
     }
