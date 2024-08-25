@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="BilingualTranslationSettingsResource" load_steps=2 format=3 uid="uid://d4myqc6t1pwa5"]
+
+[ext_resource type="Script" path="res://addons/Bilingual.Runtime.Godot.Net/Nodes/BilingualTranslationSettingsResource.cs" id="1_6biwh"]
+
+[resource]
+script = ExtResource("1_6biwh")
+OriginalLanguage = "en"
+TranslateInto = ""
+TranslationFiles = []

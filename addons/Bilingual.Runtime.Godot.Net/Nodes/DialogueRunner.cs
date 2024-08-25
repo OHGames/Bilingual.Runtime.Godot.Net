@@ -5,8 +5,6 @@ using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.VM;
 using Godot;
 using Godot.Collections;
-using System;
-
 
 // There is a conflict between Godot scripts and bilingual scripts.
 using Script = Bilingual.Runtime.Godot.Net.BilingualTypes.Containers.Script;
@@ -47,6 +45,11 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         [Export]
         public bool UsesBson { get; set; } = false;
 
+        /// <summary>Translation settings</summary>
+        [Export]
+        [ExportGroup("Translation")]
+        public BilingualTranslationSettingsResource? TranslationSettings { get; set; }
+
         /// <summary>If the VM should wait instead of having the user
         /// handle wait statements. If this is true (which it is by default), 
         /// the timer will be created and no dialogue can be called until wait 
@@ -61,6 +64,7 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
 
         public override void _Ready()
         {
+            BilingualTranslationService.SetTranslation(TranslationSettings!);
             var deserializer = new Deserializer();
             foreach (var path in FilePaths)
             {
@@ -71,6 +75,12 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
             }
 
             EmitSignal(SignalName.ScriptsLoaded);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            BilingualTranslationService.CloseScripts();
+            base.Dispose(disposing);
         }
 
         public override void _EnterTree()
@@ -97,7 +107,13 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         {
             foreach (var container in file.ScriptContainers)
             {
-                container.Scripts.ForEach(s => VirtualMachine.Scripts.TryAdd(GetFullName(container, s), s));
+                container.Scripts.ForEach(s =>
+                {
+                    var name = GetFullName(container, s);
+                    VirtualMachine.Scripts.TryAdd(name, s);
+                    AddScriptToTranslation(name);
+                });
+                
             }
         }
 
@@ -132,5 +148,28 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// <param name="action">The resumed callback function.</param>
         private void CallResumedCallback()
             => EmitSignal(SignalName.DialogueResumed);
+
+        /// <summary>Set the translation.</summary>
+        private void SetTranslation()
+        {
+            BilingualTranslationService.SetTranslation(TranslationSettings!);
+        }
+
+        /// <summary>When the translation has changed, files need to be re-added.</summary>
+        public void SetTranslationAndAddFiles()
+        {
+            SetTranslation();
+            foreach (var file in VirtualMachine.Scripts)
+            {
+                AddScriptToTranslation(file.Key);
+            }
+        }
+
+        /// <summary>Add script to translation service.</summary>
+        /// <param name="script">The script to add.</param>
+        public void AddScriptToTranslation(string script)
+        {
+            BilingualTranslationService.AddScript(script);
+        }
     }
 }

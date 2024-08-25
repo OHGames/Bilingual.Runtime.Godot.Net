@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://coh8rac6ilg4l"]
+[gd_scene load_steps=6 format=3 uid="uid://coh8rac6ilg4l"]
 
 [ext_resource type="Script" path="res://Source/Test.cs" id="1_03vpa"]
 [ext_resource type="Script" path="res://addons/Bilingual.Runtime.Godot.Net/Nodes/DialogueRunner.cs" id="2_66omp"]
 [ext_resource type="Script" path="res://addons/Bilingual.Runtime.Godot.Net/Nodes/BilingualFileResource.cs" id="3_7iami"]
+[ext_resource type="Resource" uid="uid://d4myqc6t1pwa5" path="res://Saved_Resources/translation_settings.tres" id="4_n34ri"]
 
 [sub_resource type="Resource" id="Resource_fp1y7"]
 script = ExtResource("3_7iami")
@@ -14,6 +15,7 @@ script = ExtResource("1_03vpa")
 [node name="DialogueRunner" type="Node" parent="."]
 script = ExtResource("2_66omp")
 FilePaths = [SubResource("Resource_fp1y7")]
+TranslationSettings = ExtResource("4_n34ri")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 

@@ -11,8 +11,8 @@ namespace Bilingual.Runtime.Godot.Net
     public partial class Test : Node2D
     {
         private bool dialoguePaused;
-        private DialogueRunner? runner = null;
-        private Label label;
+        private DialogueRunner runner = null!;
+        private Label label = null!;
 
         public override void _Ready()
         {
@@ -25,7 +25,6 @@ namespace Bilingual.Runtime.Godot.Net
 
             runner.DialoguePaused += (result) => dialoguePaused = true;
             runner.DialogueResumed += () => dialoguePaused = false;
-
             runner.RunScript("Test.Wow.Wow");
         }
 

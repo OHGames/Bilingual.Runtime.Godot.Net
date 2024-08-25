@@ -66,6 +66,12 @@ namespace Bilingual.Runtime.Godot.Net.VM
             }
         }
 
+        /// <summary>If translation should occur.</summary>
+        private static bool ShouldTranslate => BilingualTranslationService.TranslationSettings.ShouldTranslate;
+
+        /// <summary>The full name of the current script.</summary>
+        private string currentScriptName = "";
+
         public VirtualMachine()
         {
             Scope.GlobalScope.VirtualMachine = this;
@@ -107,7 +113,6 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     return new ScriptOver();
                 }
 
-                //CurrentScope = scope;
                 statement = CurrentScope.GetNextStatement();
             }
 
@@ -173,6 +178,10 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 case InjectStatement injectStatement:
                     return RunInjectStatement(injectStatement);
 
+                case EndInjectStatement endInject:
+                    currentScriptName = endInject.PreviousScriptName;
+                    break;
+
                 default:
                     throw new NotImplementedException();
             }
@@ -195,6 +204,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 var newScope = new Scope(Scope.GlobalScope, this);
                 newScope.Statements.AddRange(toLoad.Block.Statements);
                 Scopes.Push(newScope);
+                currentScriptName = script;
             }
             else
             {
@@ -207,11 +217,18 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <returns>A <see cref="DialogueResult"/>.</returns>
         /// <exception cref="InvalidOperationException">When the expression in the dialogue
         /// is not a string <see cref="Literal"/> or an <see cref="InterpolatedString"/>.</exception>
-        private BilingualResult RunDialogueStatement(DialogueStatement statement)
+        private DialogueResult RunDialogueStatement(DialogueStatement statement)
         {
             var dialogueText = EvaluateExpression(statement.Dialogue);
             if (dialogueText is string dialogueStr)
             {
+                if (ShouldTranslate)
+                {
+                    var translation = BilingualTranslationService.Translate(statement.LineId!.Value, currentScriptName, statement);
+                    var lit = (Literal)translation;
+                    return new DialogueResult((string)lit, statement, false);
+                }
+
                 return new DialogueResult(dialogueStr, statement, false);
             }
             else if (dialogueText is InterpolatedString)
@@ -232,6 +249,12 @@ namespace Bilingual.Runtime.Godot.Net.VM
         {
             var interpolated = (InterpolatedString)statement.Dialogue;
             var dialogue = "";
+
+            if (ShouldTranslate)
+            {
+                var translated = BilingualTranslationService.Translate(statement.LineId!.Value, currentScriptName, statement);
+                interpolated = (InterpolatedString)translated;
+            }
 
             for (int i = 0; i < interpolated.Expressions.Count; i++)
             {
@@ -459,11 +482,14 @@ namespace Bilingual.Runtime.Godot.Net.VM
             if (Scripts.TryGetValue(inject.Script, out Script? script))
             {
                 scope.InjectStatements(script.Block);
+                scope.Statements.Add(new EndInjectStatement(currentScriptName));
             }
             else
             {
                 throw new StatementErrorException($"{inject.Script} is not loaded.");
             }
+
+            currentScriptName = inject.Script;
 
             return GetNextLine();
         }
