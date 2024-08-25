@@ -1,23 +1,10 @@
 ﻿using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
-using System;
 
 namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow
 {
-    public class WhileStatement : Statement
+    public class WhileStatement(Expression expression, Block block) : Statement
     {
-        public Expression Expression { get; set; }
-        public Block Block { get; set; }
-
-        [Obsolete("Used by JSON only.")]
-        private WhileStatement()
-        {
-            // used by JSON.
-        }
-
-        public WhileStatement(Expression expression, Block block)
-        {
-            Expression = expression;
-            Block = block;
-        }
+        public Expression Expression { get; set; } = expression;
+        public Block Block { get; set; } = block;
     }
 }

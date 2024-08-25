@@ -1,43 +1,27 @@
 ﻿using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
-using System;
 
 namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Statements
 {
     /// <summary>
     /// A line of dialogue.
     /// </summary>
-    public class DialogueStatement : Statement
+    public class DialogueStatement(string name, string? emotion, Expression dialogue, 
+        uint? lineId, string? translationComment) : Statement
     {
         /// <summary>The name of the character.</summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = name;
 
         /// <summary>The emotion of the character.</summary>
-        public string? Emotion { get; set; }
+        public string? Emotion { get; set; } = emotion;
 
         /// <summary>The dialogue. Either a string <see cref="Literal"/> or an <see cref="InterpolatedString"/>.</summary>
-        public Expression Dialogue { get; set; }
+        public Expression Dialogue { get; set; } = dialogue;
 
         /// <summary>The line id.</summary>
-        public uint? LineId { get; set; }
+        public uint? LineId { get; set; } = lineId;
 
         /// <summary>The translation comment.</summary>
-        public string? TranslationComment { get; set; }
-
-        [Obsolete("Used by JSON only.")]
-        private DialogueStatement()
-        {
-            // used by JSON.
-        }
-
-        public DialogueStatement(string name, string? emotion, Expression dialogue, uint? lineId, 
-            string? translationComment)
-        {
-            Name = name;
-            Emotion = emotion;
-            Dialogue = dialogue;
-            LineId = lineId;
-            TranslationComment = translationComment;
-        }
+        public string? TranslationComment { get; set; } = translationComment;
 
         /// <summary>Copy the statement with a different string.</summary>
         /// <param name="str">The new dialogue.</param>

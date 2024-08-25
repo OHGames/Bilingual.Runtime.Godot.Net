@@ -1,29 +1,12 @@
-﻿using System;
-
-namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
+﻿namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
 {
     /// <summary>
     /// When a function is called.
     /// </summary>
-    public class FunctionCallExpression : Expression
+    public class FunctionCallExpression(string name, Params @params, bool async) : Expression
     {
-        public string Name { get; set; }
-        //public List<Accessor> Accessors { get; set; } = [];
-        public Params Params { get; set; }
-        public bool Await { get; set; }
-
-        [Obsolete("Used by JSON only.")]
-        private FunctionCallExpression()
-        {
-            // used by JSON.
-        }
-
-        public FunctionCallExpression(string name, Params @params, bool async)
-        {
-            Name = name;
-            //Accessors = accessors;
-            Params = @params;
-            Await = async;
-        }
+        public string Name { get; set; } = name;
+        public Params Params { get; set; } = @params;
+        public bool Await { get; set; } = async;
     }
 }

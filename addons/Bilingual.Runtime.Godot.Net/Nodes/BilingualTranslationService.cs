@@ -35,8 +35,10 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         public static void SetTranslation(BilingualTranslationSettingsResource settings)
         {
             openScripts.Clear();
-
             TranslationSettings = settings;
+
+            if (!settings.ShouldTranslate) return;
+
             var zipReader = new ZipReader();
             var result = zipReader
                 .Open(settings.TranslationFiles
@@ -55,6 +57,8 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// <param name="fullName"></param>
         public static void AddScript(string fullName)
         {
+            if (!TranslationSettings.ShouldTranslate) return;
+
             // Path is the full name with each period replaced with slashes.
             var path = fullName.Replace('.', '/');
             var fileBytes = reader.ReadFile(path + ".csv");

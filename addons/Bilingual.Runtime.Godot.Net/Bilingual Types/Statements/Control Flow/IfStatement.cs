@@ -1,63 +1,25 @@
 ﻿using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
-using System;
 using System.Collections.Generic;
 
 namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow
 {
-    public class IfStatement : Statement
+    public class IfStatement(Expression expression, Block block,
+        List<ElseIfStatement> elseIfStatements, ElseStatement? elseStatement) : Statement
     {
-        public Expression Expression { get; set; }
-        public Block Block { get; set; }
-        public List<ElseIfStatement> ElseIfStatements { get; set; } = [];
-        public ElseStatement? ElseStatement { get; set; }
-
-        [Obsolete("Used by JSON only.")]
-        private IfStatement()
-        {
-            // used by JSON.
-        }
-
-        public IfStatement(Expression expression, Block block, 
-            List<ElseIfStatement> elseIfStatements, ElseStatement? elseStatement)
-        {
-            Expression = expression;
-            Block = block;
-            ElseIfStatements = elseIfStatements;
-            ElseStatement = elseStatement;
-        }
+        public Expression Expression { get; set; } = expression;
+        public Block Block { get; set; } = block;
+        public List<ElseIfStatement> ElseIfStatements { get; set; } = elseIfStatements;
+        public ElseStatement? ElseStatement { get; set; } = elseStatement;
     }
 
-    public class ElseIfStatement : Statement
+    public class ElseIfStatement(Expression expression, Block block) : Statement
     {
-        public Expression Expression { get; set; }
-        public Block Block { get; set; }
-
-        [Obsolete("Used by JSON only.")]
-        private ElseIfStatement()
-        {
-            // used by JSON.
-        }
-
-        public ElseIfStatement(Expression expression, Block block)
-        {
-            Expression = expression;
-            Block = block;
-        }
+        public Expression Expression { get; set; } = expression;
+        public Block Block { get; set; } = block;
     }
 
-    public class ElseStatement : Statement
+    public class ElseStatement(Block block) : Statement
     {
-        public Block Block { get; set; }
-
-        [Obsolete("Used by JSON only.")]
-        private ElseStatement()
-        {
-            // used by JSON.
-        }
-
-        public ElseStatement(Block block)
-        {
-            Block = block;
-        }
+        public Block Block { get; set; } = block;
     }
 }

@@ -1,26 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
+﻿namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
 {
     /// <summary>
     /// A variable.
     /// </summary>
-    public class Variable : Expression
+    public class Variable(string name) : Expression
     {
-        public string Name { get; set; }
-        //public List<Accessor> Accessors { get; set; } = [];
-
-        [Obsolete("Used by JSON only.")]
-        private Variable()
-        {
-            // used by JSON.
-        }
-
-        public Variable(string name)
-        {
-            Name = name;
-            //Accessors = accessors;
-        }
+        public string Name { get; set; } = name;
     }
 }

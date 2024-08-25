@@ -1,25 +1,13 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 
 namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions
 {
     /// <summary>
     /// A literal value. String, double, etc.
     /// </summary>
-    public class Literal : Expression
+    public class Literal(object value) : Expression
     {
-        public object Value { get; set; }
-
-        [Obsolete("Used by JSON only.")]
-        private Literal()
-        {
-            // used by JSON.
-        }
-
-        public Literal(object value)
-        {
-            Value = value;
-        }
+        public object Value { get; set; } = value;
 
         public bool IsDouble() => Value is double;
         public bool IsBool() => Value is bool;
