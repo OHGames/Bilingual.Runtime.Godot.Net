@@ -2,10 +2,14 @@
 using Godot;
 using JsonSubTypes;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+
+using FileAccess = Godot.FileAccess;
 
 namespace Bilingual.Runtime.Godot.Net.Deserialization
 {
@@ -60,7 +64,14 @@ namespace Bilingual.Runtime.Godot.Net.Deserialization
             }
             else
             {
-                throw new NotImplementedException();
+                var buffer = file.GetBuffer((long)file.GetLength());
+                using MemoryStream ms = new MemoryStream(buffer);
+                using BsonDataReader reader = new BsonDataReader(ms);
+
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Converters.Add(serializerSettings.Converters[0]);
+                var newFile = serializer.Deserialize<BilingualFile>(reader);
+                return newFile ?? throw new JsonException("The deserialized object is null");
             }
         }
     }

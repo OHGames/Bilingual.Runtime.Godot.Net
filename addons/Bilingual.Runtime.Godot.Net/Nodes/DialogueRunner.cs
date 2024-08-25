@@ -112,8 +112,7 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
                     var name = GetFullName(container, s);
                     VirtualMachine.Scripts.TryAdd(name, s);
                     AddScriptToTranslation(name);
-                });
-                
+                });      
             }
         }
 
