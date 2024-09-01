@@ -111,7 +111,7 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
                 {
                     var name = GetFullName(container, s);
                     VirtualMachine.Scripts.TryAdd(name, s);
-                    AddScriptToTranslation(name);
+                    AddScriptToTranslation(name, s);
                 });      
             }
         }
@@ -160,15 +160,15 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
             SetTranslation();
             foreach (var file in VirtualMachine.Scripts)
             {
-                AddScriptToTranslation(file.Key);
+                AddScriptToTranslation(file.Key, file.Value);
             }
         }
 
         /// <summary>Add script to translation service.</summary>
         /// <param name="script">The script to add.</param>
-        public void AddScriptToTranslation(string script)
+        public void AddScriptToTranslation(string scriptName, Script script)
         {
-            BilingualTranslationService.AddScript(script);
+            BilingualTranslationService.AddScript(scriptName, script);
         }
     }
 }

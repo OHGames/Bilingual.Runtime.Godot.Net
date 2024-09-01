@@ -1,4 +1,5 @@
-﻿using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
+﻿using Bilingual.Runtime.Godot.Net.BilingualTypes;
+using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow;
 using Bilingual.Runtime.Godot.Net.Commands;
@@ -7,6 +8,8 @@ using Bilingual.Runtime.Godot.Net.Nodes;
 using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.Scopes;
 using Godot;
+using ReswPlusLib.Interfaces;
+using ReswPlusLib.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -224,7 +227,8 @@ namespace Bilingual.Runtime.Godot.Net.VM
             {
                 if (ShouldTranslate)
                 {
-                    var translation = BilingualTranslationService.Translate(statement.LineId!.Value, currentScriptName, statement);
+                    var id = statement.LineId ?? throw new Exception("Line id missing");
+                    var translation = BilingualTranslationService.Translate(id);
                     var lit = (Literal)translation;
                     return new DialogueResult((string)lit, statement, false);
                 }
@@ -252,7 +256,8 @@ namespace Bilingual.Runtime.Godot.Net.VM
 
             if (ShouldTranslate)
             {
-                var translated = BilingualTranslationService.Translate(statement.LineId!.Value, currentScriptName, statement);
+                var id = statement.LineId ?? throw new Exception("Line id missing");
+                var translated = BilingualTranslationService.Translate(id);
                 interpolated = (InterpolatedString)translated;
             }
 
@@ -294,6 +299,32 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     else
                     {
                         dialogueChunk = RunCommandStatement(function, true) ?? "null";
+                    }
+                }
+                else if (expression is LocalizedQuanity quanity)
+                {
+                    IPluralProvider pluralProvider;
+                    if (ShouldTranslate)
+                    {
+                        pluralProvider = PluralHelper.GetPluralChooser(BilingualTranslationService.TranslateIntoBasic);
+                    }
+                    else
+                    {
+                        pluralProvider = PluralHelper.GetPluralChooser(BilingualTranslationService.OriginalLanguage);
+                    }
+
+                    var value = EvaluateExpression<double>(quanity.Value);
+                    var pluralType = pluralProvider.ComputePlural(value);
+                    var localizedString = quanity.Plurals[pluralType];
+
+                    // TODO: replace escaped with regular character
+                    // If here is a #, replace it with the expression's value.
+                    var hashTagRegex = BilingualTranslationService.MatchHashTag();
+                    var matches = hashTagRegex.Matches(localizedString);
+                    if (matches.Count == 0) dialogueChunk = localizedString;
+                    else
+                    {
+                        dialogueChunk = hashTagRegex.Replace(localizedString, value.ToString());
                     }
                 }
                 else

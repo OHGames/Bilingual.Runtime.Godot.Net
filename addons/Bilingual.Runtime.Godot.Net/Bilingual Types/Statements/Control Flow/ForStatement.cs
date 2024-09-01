@@ -6,11 +6,10 @@ namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow
     /// A for loop.
     /// </summary>
     public class ForStatement(VariableDeclaration variableDeclaration, Expression loopCondition,
-        Expression alterIndex, Block block) : Statement
+        Expression alterIndex, Block block) : BlockedStatement(block)
     {
         public VariableDeclaration VariableDeclaration { get; set; } = variableDeclaration;
         public Expression LoopCondition { get; set; } = loopCondition;
         public Expression AlterIndex { get; set; } = alterIndex;
-        public Block Block { get; set; } = block;
     }
 }

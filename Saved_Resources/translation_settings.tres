@@ -1,9 +1,14 @@
-[gd_resource type="Resource" script_class="BilingualTranslationSettingsResource" load_steps=2 format=3 uid="uid://d4myqc6t1pwa5"]
+[gd_resource type="Resource" script_class="BilingualTranslationSettingsResource" load_steps=4 format=3 uid="uid://d4myqc6t1pwa5"]
 
+[ext_resource type="Script" path="res://addons/Bilingual.Runtime.Godot.Net/Nodes/TranslationFileResource.cs" id="1_1r723"]
 [ext_resource type="Script" path="res://addons/Bilingual.Runtime.Godot.Net/Nodes/BilingualTranslationSettingsResource.cs" id="1_6biwh"]
+
+[sub_resource type="Resource" id="Resource_fo6j0"]
+script = ExtResource("1_1r723")
+FilePath = "res://Localized/es.zip"
 
 [resource]
 script = ExtResource("1_6biwh")
 OriginalLanguage = "en"
-TranslateInto = ""
-TranslationFiles = []
+TranslateInto = "es"
+TranslationFiles = [SubResource("Resource_fo6j0")]

@@ -2,9 +2,8 @@
 
 namespace Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow
 {
-    public class WhileStatement(Expression expression, Block block) : Statement
+    public class WhileStatement(Expression expression, Block block) : BlockedStatement(block)
     {
         public Expression Expression { get; set; } = expression;
-        public Block Block { get; set; } = block;
     }
 }
