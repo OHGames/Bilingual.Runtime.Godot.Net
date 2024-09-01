@@ -22,5 +22,16 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 || opr == Operator.MulEqual || opr == Operator.DivEqual
                 || opr == Operator.PlusEqual || opr == Operator.MinusEqual;
         }
+
+        /// <summary>Check if double is a whole number.</summary>
+        /// <param name="d">The double.</param>
+        /// <returns>True if whole.</returns>
+        public static bool IsWholeNumber(double d)
+        {
+            // When casted to an int, the decimals are truncated (cut off).
+            // So if the value of i does not equal d, it means that there was a truncated decimal.
+            long i = (long)d;
+            return i == d;
+        }
     }
 }

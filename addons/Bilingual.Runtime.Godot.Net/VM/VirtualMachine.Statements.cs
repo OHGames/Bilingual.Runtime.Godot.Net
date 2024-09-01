@@ -8,11 +8,14 @@ using Bilingual.Runtime.Godot.Net.Nodes;
 using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.Scopes;
 using Godot;
+using Humanizer;
 using ReswPlusLib.Interfaces;
 using ReswPlusLib.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Script = Bilingual.Runtime.Godot.Net.BilingualTypes.Containers.Script;
@@ -324,7 +327,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     if (matches.Count == 0) dialogueChunk = localizedString;
                     else
                     {
-                        dialogueChunk = hashTagRegex.Replace(localizedString, value.ToString());
+                        dialogueChunk = hashTagRegex.Replace(localizedString, (match) => ReplaceHashtag(match, value));
                     }
                 }
                 else
@@ -336,6 +339,45 @@ namespace Bilingual.Runtime.Godot.Net.VM
             }
 
             return new DialogueResult(dialogue, statement, prevPaused);
+        }
+
+        /// <summary>Replace the hashtag in a localized quanity with a string.</summary>
+        /// <param name="match">The regex match.</param>
+        /// <param name="value">The value</param>
+        /// <returns>The string.</returns>
+        private static string ReplaceHashtag(Match match, double value)
+        {
+            if (match.Length == 1) return value.ToString();
+            else
+            {
+                // Double hashtag should replace with words
+                var culture = new CultureInfo(BilingualTranslationService.TranslateInto);
+                var gender = GrammaticalGender.Masculine;
+                bool capitalize = false;
+
+                // we have a gender if true
+                if (match.Length != 2)
+                {
+                    var markedGender = match.Value[2];
+                    gender = markedGender switch
+                    {
+                        'n' => GrammaticalGender.Neuter,
+                        'N' => GrammaticalGender.Neuter,
+                        'f' => GrammaticalGender.Feminine,
+                        'F' => GrammaticalGender.Feminine,
+                        _ => GrammaticalGender.Masculine
+                    };
+                    capitalize = markedGender == 'N' || markedGender == 'F' || markedGender == 'M';
+                }
+
+                if (IsWholeNumber(value))
+                {
+                    var words = ((long)value).ToWords(gender, culture);
+                    if (capitalize) return words.Transform(culture, To.SentenceCase);
+                    else return words;
+                }
+                else return value.ToString();
+            }
         }
 
         /// <summary>Convert an object to a string.</summary>

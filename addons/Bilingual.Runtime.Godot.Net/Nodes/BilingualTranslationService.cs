@@ -29,7 +29,10 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
 
         /// <summary>The original language.</summary>
         public static string OriginalLanguage => TranslationSettings.OriginalLanguage;
-        
+
+        /// <summary>Language to translate to.</summary>
+        public static string TranslateInto => TranslationSettings.TranslateInto;
+
         /// <summary>Get the language code to translate to without the dialect.</summary>
         public static string TranslateIntoBasic
         {
@@ -255,7 +258,7 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         public static partial Regex MatchInlines();
 
         // Match hash tag that is not escaped.
-        [GeneratedRegex(@"(?<!\\)(?:\\\\)*#")]
+        [GeneratedRegex(@"(?<!\\)(?:\\\\)*#(?:#[mfnMFN]?)?")]
         public static partial Regex MatchHashTag();
     }
 }
