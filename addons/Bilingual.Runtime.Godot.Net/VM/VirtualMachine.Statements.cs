@@ -55,6 +55,10 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <summary>Emits the dialogue runner signal <see cref="DialogueRunner.DialogueResumed"/>.</summary>
         internal Action ResumedCallback = delegate { };
 
+        /// <summary>Emits <see cref="DialogueRunner.ScriptStartedRunning"/>.
+        /// This runs on 'run' commands and 'inject' commands.</summary>
+        internal Action<Dictionary<string, object>> ScriptStartedRunningCallback = delegate { };
+
         /// <summary>If dialogue is paused.</summary>
         private bool paused;
 
@@ -210,6 +214,9 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 newScope.Statements.AddRange(toLoad.Block.Statements);
                 Scopes.Push(newScope);
                 currentScriptName = script;
+
+                var dict = GetScriptAttributes();
+                ScriptStartedRunningCallback(dict);
             }
             else
             {
@@ -581,8 +588,27 @@ namespace Bilingual.Runtime.Godot.Net.VM
             }
 
             currentScriptName = inject.Script;
+            ScriptStartedRunningCallback(GetScriptAttributes());
 
             return GetNextLine();
+        }
+
+        /// <summary>Get the attributes of the current running script.</summary>
+        /// <returns>A dictionary of attributes. The key is the name and the value 
+        /// is the attribute value.</returns>
+        public Dictionary<string, object> GetScriptAttributes()
+        {
+            var script = Scripts[currentScriptName];
+            Dictionary<string, object> attributes = [];
+
+            foreach (var attr in script.Attributes)
+            {
+                var name = attr.Name;
+                var expr = EvaluateExpression(attr.Value);
+                attributes.Add(name, expr);
+            }
+
+            return attributes;
         }
     }
 }

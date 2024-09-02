@@ -4,6 +4,7 @@ using Bilingual.Runtime.Godot.Net.Results;
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bilingual.Runtime.Godot.Net
@@ -25,6 +26,15 @@ namespace Bilingual.Runtime.Godot.Net
 
             runner.DialoguePaused += (result) => dialoguePaused = true;
             runner.DialogueResumed += () => dialoguePaused = false;
+            runner.ScriptStartedRunning += (dict) =>
+            {
+                if (dict.TryGetValue("Characters", out object? chars))
+                {
+                    var characters = ((List<object>)chars).Cast<string>();
+                    GD.PushWarning(string.Join(", ", characters));
+                }
+            };
+
             runner.RunScript("Test.Wow.Wow");
         }
 

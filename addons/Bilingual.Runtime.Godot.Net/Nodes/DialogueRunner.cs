@@ -8,6 +8,8 @@ using Godot.Collections;
 
 // There is a conflict between Godot scripts and bilingual scripts.
 using Script = Bilingual.Runtime.Godot.Net.BilingualTypes.Containers.Script;
+using AttributeDictionary = System.Collections.Generic.Dictionary<string, object>;
+using System;
 
 namespace Bilingual.Runtime.Godot.Net.Nodes
 {
@@ -36,6 +38,11 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// Only called when <see cref="UseVmToWait"/> is true.</summary>
         [Signal]
         public delegate void DialogueResumedEventHandler();
+
+        /// <summary>When a script starts running.
+        /// This is a C# event due to the dict not being a Godot compatable type.
+        /// This runs on 'run' commands and 'inject' commands.</summary>
+        public event Action<AttributeDictionary> ScriptStartedRunning = delegate { };
 
         /// <summary>The file paths of files to add when ready.</summary>
         [Export]
@@ -90,6 +97,7 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
             // The VM is not a node so just call these functions.
             VirtualMachine.PausedCallback += CallPausedCallback;
             VirtualMachine.ResumedCallback += CallResumedCallback;
+            VirtualMachine.ScriptStartedRunningCallback += InvokeScriptStartedRunning;
         }
 
         /// <summary>Add a script. Scripts must be added in order to be run first.
@@ -138,14 +146,14 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// Only called when <see cref="UseVmToWait"/> is true.
         /// Signals are not used because this class is not a Node.</summary>
         /// <param name="paused">The paused callback function.</param>
-        public void CallPausedCallback(BilingualResult result) 
+        internal void CallPausedCallback(BilingualResult result) 
             => EmitSignal(SignalName.DialoguePaused, result);
 
         /// <summary>Add a new callback for when dialogue is resumed.
         /// Only called when <see cref="UseVmToWait"/> is true.
         /// Signals are not used because this class is not a Node.</summary>
         /// <param name="action">The resumed callback function.</param>
-        private void CallResumedCallback()
+        internal void CallResumedCallback()
             => EmitSignal(SignalName.DialogueResumed);
 
         /// <summary>Set the translation.</summary>
@@ -170,5 +178,22 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         {
             BilingualTranslationService.AddScript(scriptName, script);
         }
+
+        /// <summary>Called by VM to emit the event.</summary>
+        /// <param name="attributeDictionary"></param>
+        internal void InvokeScriptStartedRunning(AttributeDictionary attributeDictionary)
+        {
+            ScriptStartedRunning(attributeDictionary);
+        }
+
+        /// <summary>Get the current script's attributes.</summary>
+        /// <returns>A dictionary where the key is the name and the value is the attributes value.</returns>
+        public AttributeDictionary GetCurrentScriptAttributes()
+            => VirtualMachine.GetScriptAttributes();
+
+        /// <summary>If the current script has the attribute called <paramref name="name"/>.</summary>
+        /// <param name="name">Name of the attribute.</param>
+        public bool HasScriptAttribute(string name)
+            => VirtualMachine.GetScriptAttributes().ContainsKey(name);
     }
 }
