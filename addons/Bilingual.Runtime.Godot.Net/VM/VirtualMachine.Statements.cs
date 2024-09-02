@@ -7,10 +7,9 @@ using Bilingual.Runtime.Godot.Net.Exceptions;
 using Bilingual.Runtime.Godot.Net.Nodes;
 using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.Scopes;
+using CLDRPlurals;
 using Godot;
 using Humanizer;
-using ReswPlusLib.Interfaces;
-using ReswPlusLib.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -306,18 +305,18 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 }
                 else if (expression is LocalizedQuanity quanity)
                 {
-                    IPluralProvider pluralProvider;
-                    if (ShouldTranslate)
+                    var value = EvaluateExpression<double>(quanity.Value);
+                    PluralCase pluralType = PluralCase.Other;
+                    var locale = BilingualTranslationService.TranslateIntoBasic;
+                    if (quanity.Cardinal)
                     {
-                        pluralProvider = PluralHelper.GetPluralChooser(BilingualTranslationService.TranslateIntoBasic);
+                        pluralType = NumberPlurals.GetCardinalPluralCase(locale, value);
                     }
                     else
                     {
-                        pluralProvider = PluralHelper.GetPluralChooser(BilingualTranslationService.OriginalLanguage);
+                        pluralType = NumberPlurals.GetOrdinalPluralCase(locale, value);
                     }
 
-                    var value = EvaluateExpression<double>(quanity.Value);
-                    var pluralType = pluralProvider.ComputePlural(value);
                     var localizedString = quanity.Plurals[pluralType];
 
                     // TODO: replace escaped with regular character
@@ -327,7 +326,9 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     if (matches.Count == 0) dialogueChunk = localizedString;
                     else
                     {
-                        dialogueChunk = hashTagRegex.Replace(localizedString, (match) => ReplaceHashtag(match, value));
+                        dialogueChunk = hashTagRegex.Replace(localizedString, (match) => 
+                            ReplaceHashtag(match, value, quanity.Cardinal)
+                        );
                     }
                 }
                 else
@@ -345,17 +346,19 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <param name="match">The regex match.</param>
         /// <param name="value">The value</param>
         /// <returns>The string.</returns>
-        private static string ReplaceHashtag(Match match, double value)
+        private static string ReplaceHashtag(Match match, double value, bool cardinal)
         {
-            if (match.Length == 1) return value.ToString();
+            if (match.Length == 1) 
+                return value.ToString();
             else
             {
                 // Double hashtag should replace with words
                 var culture = new CultureInfo(BilingualTranslationService.TranslateInto);
                 var gender = GrammaticalGender.Masculine;
+                var form = WordForm.Normal;
                 bool capitalize = false;
 
-                // we have a gender if true
+                // we have a gender and/or abbreviation if true
                 if (match.Length != 2)
                 {
                     var markedGender = match.Value[2];
@@ -368,15 +371,30 @@ namespace Bilingual.Runtime.Godot.Net.VM
                         _ => GrammaticalGender.Masculine
                     };
                     capitalize = markedGender == 'N' || markedGender == 'F' || markedGender == 'M';
+
+                    // abbreviation
+                    if (match.Length == 4 && match.Value[3] == 'a')
+                    {
+                        form = WordForm.Abbreviation;
+                    }
                 }
 
+                // Humanizer only supports whole numbers for words.
                 if (IsWholeNumber(value))
                 {
-                    var words = ((long)value).ToWords(gender, culture);
-                    if (capitalize) return words.Transform(culture, To.SentenceCase);
-                    else return words;
+                    long longValue = (long)value;
+                    int intValue = (int)value;
+                    var words = cardinal 
+                        ? longValue.ToWords(form, gender, culture) 
+                        : intValue.ToOrdinalWords(gender, form, culture);
+
+                    if (capitalize) 
+                        return words.Transform(culture, To.SentenceCase);
+                    else 
+                        return words;
                 }
-                else return value.ToString();
+                
+                return value.ToString();
             }
         }
 

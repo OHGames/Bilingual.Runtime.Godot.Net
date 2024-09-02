@@ -3,9 +3,9 @@ using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow;
 using Bilingual.Runtime.Godot.Net.Deserialization;
+using CLDRPlurals;
 using CsvHelper;
 using Godot;
-using ReswPlusLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -39,6 +39,8 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
             get
             {
                 var to = TranslationSettings.TranslateInto;
+                if (!TranslationSettings.ShouldTranslate) to = OriginalLanguage;
+
                 if (to.Contains('-'))
                 {
                     // get rid of dialect code.
@@ -219,11 +221,16 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
                             var newInline = match[2..^2];
 
                             // Get the index.
-                            var indexString = newInline.Split(' ').First();
+                            var splitInline = newInline.Split(' ');
+                            var indexString = splitInline.First();
                             var index = int.Parse(indexString);
-                            newInline = newInline[indexString.Length..];
+                            newInline = newInline[indexString.Length..].Trim();
 
-                            Dictionary<PluralTypeEnum, string> plurals = [];
+                            // Cardinal or ordinal?
+                            var cardinal = splitInline[1] == "pl";
+                            newInline = newInline[splitInline[1].Length..];
+
+                            Dictionary<PluralCase, string> plurals = [];
                             var splitPlurals = newInline.Split(',');
                             foreach (var plural in splitPlurals)
                             {
@@ -232,12 +239,12 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
                                 var pluralType = parts[0];
                                 var pluralStr = parts[1][1..^1]; // remove the single qoutes
 
-                                var pluralTypeEnum = Enum.Parse<PluralTypeEnum>(pluralType, true);
+                                var pluralTypeEnum = Enum.Parse<PluralCase>(pluralType, true);
                                 plurals.Add(pluralTypeEnum, pluralStr);
                             }
                             // Get the expression that will determine the plurals from the original expression.
                             var valueExpression = ((LocalizedQuanity)originalInlines[index]).Value;
-                            expressions.Add(new LocalizedQuanity(valueExpression, plurals));
+                            expressions.Add(new LocalizedQuanity(valueExpression, plurals, cardinal));
                         }
                     }
 
@@ -254,11 +261,11 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         // The right part of the giant boolean OR is the inline variables/expressions.
         // backslash regex matching credit:
         // https://stackoverflow.com/a/11819111
-        [GeneratedRegex(@"((?<!\\)(?:\\\\)*={\d+?\s+?(?:\w*?='(?:[^'])+?',?\s?)+}=|(?<!\\)(?:\\\\)*=\[\d+?\]=)")]
+        [GeneratedRegex(@"(?<!\\)(?:\\\\)*(={\d+?\s+?(?:ord|pl)\s+?(?:\w*?='(?:[^'])+?',?\s?)+}=|=\[\d+?\]=)")]
         public static partial Regex MatchInlines();
 
         // Match hash tag that is not escaped.
-        [GeneratedRegex(@"(?<!\\)(?:\\\\)*#(?:#[mfnMFN]?)?")]
+        [GeneratedRegex(@"(?<!\\)(?:\\\\)*#(?:#[mfnMFN]?a?)?")]
         public static partial Regex MatchHashTag();
     }
 }

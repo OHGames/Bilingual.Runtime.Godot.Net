@@ -8,9 +8,9 @@ A list of the code licenses for the software used in Bilingual.Runtime.Godot.Net
 | CsvHelper | https://github.com/JoshClose/CsvHelper | MS-PL | [License Link](https://github.com/JoshClose/CsvHelper/blob/852bd465e0d460eb60013abdc07fff8f68f68a59/LICENSE.txt) | N/A |
 | JsonSubTypes | https://github.com/manuc66/JsonSubTypes | MIT License | [License Link](https://github.com/manuc66/JsonSubTypes/blob/9194b015745bb991b8eae42c18f3f06fa14f2aa4/LICENSE) | N/A |
 | BeginInvoke not supported on .NET core? (PlatformNotSupported exception) (answer) | https://stackoverflow.com/a/55516918 | CC BY-SA 4.0 | [License Link](https://creativecommons.org/licenses/by-sa/4.0/) | Altered syntax slightly to suit needs |
-| ReswPlus (ReswPlus.Shared) | https://github.com/DotNetPlus/ReswPlus | MIT License | [License Link](https://github.com/DotNetPlus/ReswPlus/blob/5704cea060de5a5f5287d96d2b12f39c384147e3/LICENSE) | N/A |
 | regex - match character which is not escaped (answer) | https://stackoverflow.com/a/11819111 |  CC BY-SA 3.0 | [License Link](https://creativecommons.org/licenses/by-sa/3.0/) | None | 
 | Humanizer | https://github.com/Humanizr/Humanizer | MIT License | [License Link](https://github.com/Humanizr/Humanizer/blob/1dee67d72d53282aff76be8a2aaacc4a28ea6cbf/license.txt) | N/A |
+| Yarn Spinner | https://github.com/YarnSpinnerTool/YarnSpinner | MIT License | [License Link](https://github.com/YarnSpinnerTool/YarnSpinner/blob/1602bab152edb27a19c5d26d25728dc8c442353f/LICENSE.md) | N/A |
 
 ## License Texts
 
@@ -107,32 +107,6 @@ The MS-PL portion of the license is below. The "License" header of the home page
         (C) If you distribute any portion of the software, you must retain all copyright, patent, trademark, and attribution notices that are present in the software.
         (D) If you distribute any portion of the software in source code form, you may do so only under this license by including a complete copy of this license with your distribution. If you distribute any portion of the software in compiled or object code form, you may only do so under a license that complies with this license.
         (E) The software is licensed "as-is." You bear the risk of using it. The contributors give no express warranties, guarantees, or conditions. You may have additional consumer rights under your local laws which this license cannot change. To the extent permitted under your local laws, the contributors exclude the implied warranties of merchantability, fitness for a particular purpose and non-infringement.
-
-
-**ReswPlus**
-
-
-    MIT License
-
-    Copyright (c) 2019 Rudy Huyn
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
-
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
 
 
 **Stackoverflow Questions/Answers (see table above)**
@@ -968,3 +942,29 @@ The MS-PL portion of the license is below. The "License" header of the home page
     Copyright (c) 2013-2014 Omar Khudeira (http://omar.io)
 
     ==============================================================================
+
+
+**Yarn Spinner**
+
+
+    The MIT License (MIT)
+
+    Copyright (c) Yarn Spinner Pty. Ltd., Secret Lab Pty. Ltd., and Yarn Spinner contributors.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
