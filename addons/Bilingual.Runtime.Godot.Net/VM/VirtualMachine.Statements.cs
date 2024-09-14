@@ -231,7 +231,15 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// is not a string <see cref="Literal"/> or an <see cref="InterpolatedString"/>.</exception>
         private DialogueResult RunDialogueStatement(DialogueStatement statement)
         {
-            var dialogueText = EvaluateExpression(statement.Dialogue);
+            var dialogue = statement.Dialogue;
+            if (!ShouldTranslate)
+            {
+                // If translated, the stuff is already escaped.
+                // If not, we need to escape it now.
+                dialogue = BilingualTranslationService.EscapeExpression(dialogue, statement.LineId ?? 0);
+            }
+
+            var dialogueText = EvaluateExpression(dialogue);
             if (dialogueText is string dialogueStr)
             {
                 if (ShouldTranslate)
@@ -267,7 +275,17 @@ namespace Bilingual.Runtime.Godot.Net.VM
             {
                 var id = statement.LineId ?? throw new Exception("Line id missing");
                 var translated = BilingualTranslationService.Translate(id);
-                interpolated = (InterpolatedString)translated;
+
+                if (translated is Literal)
+                {
+                    // If the interpolated stuff was removed a single literal is returned.
+                    // So just make it into an interpolated string.
+                    interpolated = new InterpolatedString([translated]);
+                }
+                else
+                {
+                    interpolated = (InterpolatedString)translated;
+                }
             }
 
             for (int i = 0; i < interpolated.Expressions.Count; i++)
@@ -326,7 +344,6 @@ namespace Bilingual.Runtime.Godot.Net.VM
 
                     var localizedString = quanity.Plurals[pluralType];
 
-                    // TODO: replace escaped with regular character
                     // If here is a #, replace it with the expression's value.
                     var hashTagRegex = BilingualTranslationService.MatchHashTag();
                     var matches = hashTagRegex.Matches(localizedString);
@@ -337,6 +354,9 @@ namespace Bilingual.Runtime.Godot.Net.VM
                             ReplaceHashtag(match, value, quanity.Cardinal)
                         );
                     }
+
+                    // Escape. The regex made sure that the escaped # are not repaced.
+                    dialogueChunk = BilingualTranslationService.EscapeBackSlashes(dialogueChunk, statement.LineId ?? 0);
                 }
                 else
                 {

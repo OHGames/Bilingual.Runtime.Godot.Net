@@ -3,6 +3,7 @@ using Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow;
 using Bilingual.Runtime.Godot.Net.Deserialization;
+using Bilingual.Runtime.Godot.Net.Exceptions;
 using CLDRPlurals;
 using CsvHelper;
 using Godot;
@@ -109,7 +110,9 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
             foreach (var dialogue in dialogueLines)
             {
                 var id = dialogue.LineId ?? throw new Exception("No line id. This should not happen.");
-                translatedLines.Add(id, PreTranslate(id, fullName, dialogue));
+                var preTranslated = PreTranslate(id, fullName, dialogue);
+                var escaped = EscapeExpression(preTranslated, id);
+                translatedLines.Add(id, escaped);
             }
         }
 
@@ -252,6 +255,73 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
                 }
                 return new InterpolatedString(expressions);
             }
+        }
+
+        /// <summary>Find string literals and escape the stuff inside.</summary>
+        public static Expression EscapeExpression(Expression expression, uint id)
+        {
+            if (expression is Literal lit)
+            {
+                if (lit.IsString())
+                {
+                    lit.Value = EscapeBackSlashes((string)lit, id);
+                }
+            }
+            else if (expression is InterpolatedString interpolated)
+            {
+                foreach (var expr in interpolated.Expressions)
+                {
+                    if (expr is Literal exprLit)
+                    {
+                        if (exprLit.IsString())
+                        {
+                            exprLit.Value = EscapeBackSlashes((string)exprLit, id);
+                        }
+                    } 
+                }
+            }
+            return expression;
+        }
+
+        /// <summary>Take a string and escape the text.</summary>
+        public static string EscapeBackSlashes(string text, uint id)
+        {
+            string newString = "";
+            bool skip = false;
+            for (int i = 0; i < text.Length; i++)
+            {
+                // This char has already been added by previous loop iteration.
+                if (skip)
+                {
+                    skip = false;
+                    continue;
+                }
+
+                var character = text[i];
+                if (character == '\\')
+                {
+                    // Check the next char for an escaped value.
+                    if (text.Length - 1 >= i + 1)
+                    {
+                        var nextChar = text[i + 1];
+                        if (nextChar == '\\' || nextChar == '{' || nextChar == '#' || nextChar == '"')
+                        {
+                            skip = true;
+                            character = nextChar;
+                        }
+                        else
+                        {
+                            var message = $"Lone backshlash unescapped or unsupported escaped char in this text: '{text}' !" +
+                                $" Line id: #{id:D8}";
+                            throw new ExpressionEvaluationException(message);
+                        }
+                    }
+                }
+
+                newString += character;
+            }
+
+            return newString;
         }
 
         // This Regex string matches either an inline variable or localized quanity.
