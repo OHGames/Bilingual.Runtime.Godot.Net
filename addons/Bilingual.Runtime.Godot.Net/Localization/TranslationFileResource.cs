@@ -1,6 +1,6 @@
 ﻿using Godot;
 
-namespace Bilingual.Runtime.Godot.Net.Nodes
+namespace Bilingual.Runtime.Godot.Net.Localization
 {
     /// <summary>
     /// Points to a translation file.

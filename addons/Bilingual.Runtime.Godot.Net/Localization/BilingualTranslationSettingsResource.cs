@@ -1,7 +1,7 @@
 ﻿using Godot;
 using Godot.Collections;
 
-namespace Bilingual.Runtime.Godot.Net.Nodes
+namespace Bilingual.Runtime.Godot.Net.Localization
 {
     /// <summary>
     /// Holds settings for translations.

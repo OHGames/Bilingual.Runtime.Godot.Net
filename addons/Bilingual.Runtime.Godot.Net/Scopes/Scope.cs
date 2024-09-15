@@ -34,16 +34,15 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
         /// <summary>The virtual machine this scope is a part of.</summary>
         public VirtualMachine VirtualMachine { get; set; } = virtualMachine;
 
+        /// <summary>The loop scope that this scope is nested in.
+        /// Null if not in a breakable scope.</summary>
+        public IBreakableScope? loopParent;
+
         /// <summary>Get the next statement by incrementing the current index.</summary>
         /// <returns>The next statement. Returns null when scope is over.</returns>
         public virtual Statement? GetNextStatement()
         {
             var statement = Statements.ElementAtOrDefault(currentStatement++);
-            if (statement is not null)
-            {
-                if (statement is BreakStatement) return null;
-            }
-
             return statement;
         }
 

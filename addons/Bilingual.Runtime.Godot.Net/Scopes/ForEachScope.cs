@@ -10,7 +10,7 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
     /// <summary>
     /// A foreach loop.
     /// </summary>
-    public class ForEachScope : BlockedScope<ForEachStatement>
+    public class ForEachScope : BlockedScope<ForEachStatement>, IBreakableScope
     {
         /// <summary>The name of the new variable.</summary>
         public string ItemName => Statement.Item;
@@ -30,14 +30,25 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
         /// <summary>The <see cref="IEnumerator"/> of <see cref="collection"/>.</summary>
         private IEnumerator enumerator;
 
+        private bool broken = false;
+        private bool continueLoop = false;
+
         public ForEachScope(Scope? parentScope, VirtualMachine virtualMachine, ForEachStatement forEachStatement) 
             : base(parentScope, virtualMachine, forEachStatement)
         {
             Statements = forEachStatement.Block.Statements;
+            loopParent = this;
         }
 
         public override Statement? GetNextStatement()
         {
+            if (broken) return null;
+            if (continueLoop)
+            {
+                if (!MoveNext()) return null;
+                continueLoop = false;
+            }
+
             if (firstLoop)
             {
                 firstLoop = false;
@@ -61,13 +72,32 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
 
             if (endOfLoop)
             {
-                if (!enumerator.MoveNext()) return null;
-                UpdateVariableValue(ItemName, enumerator.Current);
+                if (!MoveNext()) return null;
+
                 currentStatement = 0;
                 return GetNextStatement();
             }
 
             return line;
+        }
+
+        private bool MoveNext()
+        {
+            if (!enumerator.MoveNext()) return false;
+            UpdateVariableValue(ItemName, enumerator.Current);
+            return true;
+        }
+
+        public void Break()
+        {
+            broken = true;
+        }
+
+        public void Continue()
+        {
+            endOfLoop = true;
+            currentStatement = 0;
+            continueLoop = true;
         }
     }
 }

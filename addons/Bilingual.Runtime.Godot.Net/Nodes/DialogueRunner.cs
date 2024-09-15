@@ -10,6 +10,7 @@ using Godot.Collections;
 using Script = Bilingual.Runtime.Godot.Net.BilingualTypes.Containers.Script;
 using AttributeDictionary = System.Collections.Generic.Dictionary<string, object>;
 using System;
+using Bilingual.Runtime.Godot.Net.Localization;
 
 namespace Bilingual.Runtime.Godot.Net.Nodes
 {

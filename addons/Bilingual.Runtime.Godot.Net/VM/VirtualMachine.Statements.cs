@@ -4,6 +4,7 @@ using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements;
 using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements.ControlFlow;
 using Bilingual.Runtime.Godot.Net.Commands;
 using Bilingual.Runtime.Godot.Net.Exceptions;
+using Bilingual.Runtime.Godot.Net.Localization;
 using Bilingual.Runtime.Godot.Net.Nodes;
 using Bilingual.Runtime.Godot.Net.Results;
 using Bilingual.Runtime.Godot.Net.Scopes;
@@ -156,8 +157,17 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     break;
 
                 case ContinueStatement:
+                    var loop = GoToParentLoopScope();
+                    if (loop is null) break;
+
+                    loop.Continue();
+                    break;
+
                 case BreakStatement:
-                    // handled by Scopes.
+                    var loopToBreak = GoToParentLoopScope();
+                    if (loopToBreak is null) break;
+
+                    loopToBreak.Break();
                     break;
 
                 case PlusMinusMulDivEqualStatement plusMinusMulDiv:
@@ -198,6 +208,19 @@ namespace Bilingual.Runtime.Godot.Net.VM
             return GetNextLine();
         }
 
+        /// <summary>Move to the parent loop scope.</summary>
+        private IBreakableScope? GoToParentLoopScope()
+        {
+            if (CurrentScope is null) throw new InvalidOperationException("Current Scope is null");
+            var loop = CurrentScope.loopParent;
+            if (loop is null) return null;
+            while (Scopes.Peek() != loop)
+            {
+                _ = Scopes.Pop();
+            }
+            return loop;
+        }
+
         /// <summary>Load a script into the VM to run.
         /// Call <see cref="GetNextLine"/> after to get the dialogue.</summary>
         /// <param name="script">The script to inject.</param>
@@ -212,7 +235,8 @@ namespace Bilingual.Runtime.Godot.Net.VM
 
                 var newScope = new Scope(Scope.GlobalScope, this);
                 newScope.Statements.AddRange(toLoad.Block.Statements);
-                Scopes.Push(newScope);
+                PushScope(newScope);
+                //Scopes.Push(newScope);
                 currentScriptName = script;
 
                 var dict = GetScriptAttributes();
@@ -425,37 +449,6 @@ namespace Bilingual.Runtime.Godot.Net.VM
             }
         }
 
-        /// <summary>Convert an object to a string.</summary>
-        /// <param name="value">The value of the expression.</param>
-        /// <returns>A string representation of the object.</returns>
-        private string ValueToString(object value)
-        {
-            if (value is null) return "null";
-
-            if (value is string str)
-            {
-                // catch a string before the next if statement because
-                // strings are also enumerable and we dont want to
-                // convert a string to an array of chars.
-                return str;
-            }
-            else if (value is IEnumerable objects)
-            {
-                var listStr = "[";
-                foreach (var item in objects)
-                {
-                    listStr += item.ToString() + ", ";
-                }
-                // cut off the last item's comma and space.
-                listStr = listStr[..^2] + "]";
-                return listStr;
-            }
-            else
-            {
-                return value.ToString() ?? "null";
-            }
-        }
-
         /// <summary>Run a variable related statement.</summary>
         /// <param name="statement">The statement.</param>
         /// <exception cref="InvalidOperationException">If the statement is not handled.</exception>
@@ -505,32 +498,33 @@ namespace Bilingual.Runtime.Godot.Net.VM
             {
                 case IfStatement ifStatement:
                     var ifScope = new IfScope(CurrentScope, this, ifStatement);
-                    Scopes.Push(ifScope);
+                    PushScope(ifScope);
+                    //Scopes.Push(ifScope);
                     break;
 
                 case DoWhileStatement doWhile:
                     var doWhileScope = new DoWhileScope(CurrentScope, this, doWhile);
-                    Scopes.Push(doWhileScope);
+                    PushScope(doWhileScope);
                     break;
 
                 case WhileStatement whileStatement:
                     var whileScope = new WhileScope(CurrentScope, this, whileStatement);
-                    Scopes.Push(whileScope);
+                    PushScope(whileScope);
                     break;
 
                 case ForEachStatement forEach:
                     var forEachScope = new ForEachScope(CurrentScope, this, forEach);
-                    Scopes.Push(forEachScope);
+                    PushScope(forEachScope);
                     break;
 
                 case ForStatement forStatement:
                     var forScope = new ForScope(CurrentScope, this, forStatement);
-                    Scopes.Push(forScope);
+                    PushScope(forScope);
                     break;
 
                 case ChooseStatement chooseStatement:
                     var chooseScope = new ChooseScope(CurrentScope, this, chooseStatement);
-                    Scopes.Push(chooseScope);
+                    PushScope(chooseScope);
                     storedChooseStatement = chooseStatement;
                     return new ChooseOptionsResult(chooseScope.GetOptions());
 
@@ -538,7 +532,6 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     throw new InvalidOperationException("This blocked scope is not recognized.");
             }
 
-            //CurrentScope = Scopes.Peek();
             return GetNextLine();
         }
 
@@ -550,7 +543,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <param name="inline">If the command is being run inline.</param>
         public string? RunCommandStatement(FunctionCallExpression funcExpression, bool inline)
         {
-            var name = funcExpression.Name; // todo? accessors
+            var name = funcExpression.Name;
             List<object> parameters = [];
 
             foreach (var param in funcExpression.Params.Expressions)
@@ -629,6 +622,30 @@ namespace Bilingual.Runtime.Godot.Net.VM
             }
 
             return attributes;
+        }
+
+        /// <summary>Push a new scope to the stack.</summary>
+        /// <param name="newScope"></param>
+        private void PushScope(Scope newScope)
+        {
+            IBreakableScope? parentLoop = null;
+
+            // Set the parent loop.
+            if (newScope is not IBreakableScope)
+            {
+                // foreach on a stack also moves in LIFO pattern.
+                foreach (var scope in Scopes)
+                {
+                    if (scope is IBreakableScope breakable)
+                    {
+                        parentLoop = breakable;
+                        break;
+                    }
+                }
+            }
+
+            newScope.loopParent = parentLoop;
+            Scopes.Push(newScope);
         }
     }
 }

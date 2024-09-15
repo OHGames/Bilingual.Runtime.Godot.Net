@@ -5,7 +5,7 @@ using Bilingual.Runtime.Godot.Net.VM;
 
 namespace Bilingual.Runtime.Godot.Net.Scopes
 {
-    public class ForScope : BlockedScope<ForStatement>
+    public class ForScope : BlockedScope<ForStatement>, IBreakableScope
     {
         public VariableDeclaration VariableDeclaration => Statement.VariableDeclaration;
         public Expression LoopCondition => Statement.LoopCondition;
@@ -14,14 +14,19 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
         private bool endOfLoop = true;
         private bool firstLoop = true;
 
+        private bool broken = false;
+
         public ForScope(Scope? parentScope, VirtualMachine virtualMachine, ForStatement forStatement) 
             : base(parentScope, virtualMachine, forStatement)
         {
             Statements = forStatement.Block.Statements;
+            loopParent = this;
         }
 
         public override Statement? GetNextStatement()
         {
+            if (broken) return null;
+
             if (firstLoop)
             {
                 AddNewVariable(VariableDeclaration.Name, VirtualMachine.EvaluateExpression(VariableDeclaration.Expression));
@@ -48,6 +53,17 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
             }
 
             return line;
+        }
+
+        public void Break()
+        {
+            broken = true;
+        }
+
+        public void Continue()
+        {
+            currentStatement = 0;
+            _ = VirtualMachine.EvaluateExpression<double>(AlterIndex);
         }
     }
 }

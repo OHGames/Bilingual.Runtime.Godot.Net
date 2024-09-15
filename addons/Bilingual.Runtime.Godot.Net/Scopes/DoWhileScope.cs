@@ -8,7 +8,7 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
     /// <summary>
     /// A do-while loop.
     /// </summary>
-    public class DoWhileScope : BlockedScope<DoWhileStatement>
+    public class DoWhileScope : BlockedScope<DoWhileStatement>, IBreakableScope
     {
         /// <summary>The expression to check to keep looping.</summary>
         public Expression LoopCondition => Statement.Expression;
@@ -16,14 +16,19 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
         /// <summary>If all the statements have been run for this one loop.</summary>
         private bool reachedEndOfLoop;
 
+        private bool broken = false;
+
         public DoWhileScope(Scope? parentScope, VirtualMachine vm, DoWhileStatement doWhileStatement) 
             : base(parentScope, vm, doWhileStatement)
         {
             Statements = doWhileStatement.Block.Statements;
+            loopParent = this;
         }
 
         public override Statement? GetNextStatement()
         {
+            if (broken) return null;
+
             // run loop first, then check.
             var line = base.GetNextStatement();
             reachedEndOfLoop = line is null;
@@ -50,6 +55,17 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
             }
 
             return line;
+        }
+
+        public void Break()
+        {
+            broken = true;
+        }
+
+        public void Continue()
+        {
+            reachedEndOfLoop = true;
+            currentStatement = 0;
         }
     }
 }

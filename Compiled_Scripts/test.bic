@@ -1,1 +1,696 @@
-{"Containers":[{"Name":"Test.Wow","Scripts":[{"Name":"Wow","Block":{"Statements":[{"Name":"wow","Global":false,"Expression":{"Value":"Guy","ObjectType":"Literal"},"ObjectType":"VariableDeclaration"},{"Name":"Guy","Emotion":null,"Dialogue":{"Expressions":[{"Value":"Hello, my name is ","ObjectType":"Literal"},{"Name":"wow","ObjectType":"Variable"},{"Value":".","ObjectType":"Literal"}],"ObjectType":"InterpolatedString"},"LineId":1,"TranslationComment":null,"ObjectType":"DialogueStatement"},{"Expression":{"Name":"Wait","Params":{"Expressions":[{"Value":2.0,"ObjectType":"Literal"}],"ObjectType":"Params"},"Await":false,"ObjectType":"FunctionCallExpression"},"ObjectType":"FunctionCallStatement"},{"Name":"Jake","Emotion":null,"Dialogue":{"Value":"Nice to meet you, I am Jake.","ObjectType":"Literal"},"LineId":2,"TranslationComment":null,"ObjectType":"DialogueStatement"},{"Name":"apples","Global":false,"Expression":{"Value":1.0,"ObjectType":"Literal"},"ObjectType":"VariableDeclaration"},{"Name":"Jake","Emotion":null,"Dialogue":{"Expressions":[{"Value":"I \\\\ \\\\ \\\\\\\\ \\{} have ","ObjectType":"Literal"},{"Value":{"Name":"apples","ObjectType":"Variable"},"Plurals":{"One":"## \\#\\# apple","Other":"##f apples"},"Cardinal":true,"ObjectType":"LocalizedQuanity"},{"Value":".","ObjectType":"Literal"}],"ObjectType":"InterpolatedString"},"LineId":3,"TranslationComment":null,"ObjectType":"DialogueStatement"},{"Name":"Jake","Emotion":null,"Dialogue":{"Expressions":[{"Value":"This is my ","ObjectType":"Literal"},{"Value":{"Name":"apples","ObjectType":"Variable"},"Plurals":{"One":"##","Two":"##","Few":"##","Other":"##"},"Cardinal":false,"ObjectType":"LocalizedQuanity"},{"Value":" apple.","ObjectType":"Literal"}],"ObjectType":"InterpolatedString"},"LineId":4,"TranslationComment":null,"ObjectType":"DialogueStatement"},{"Script":"Wow.Test","ObjectType":"RunStatement"}],"ObjectType":"Block"},"Attributes":[{"Name":"Characters","Value":{"Value":[{"Value":"Guy","ObjectType":"Literal"},{"Value":"Jake","ObjectType":"Literal"}],"ObjectType":"Literal"},"ObjectType":"ScriptAttribute"}],"ObjectType":"Script"}],"ObjectType":"ScriptContainer"},{"Name":"Wow","Scripts":[{"Name":"Test","Block":{"Statements":[{"Name":"Guy","Emotion":null,"Dialogue":{"Value":"I am in a new place!","ObjectType":"Literal"},"LineId":7,"TranslationComment":null,"ObjectType":"DialogueStatement"}],"ObjectType":"Block"},"Attributes":[{"Name":"Characters","Value":{"Value":[{"Value":"Jake","ObjectType":"Literal"}],"ObjectType":"Literal"},"ObjectType":"ScriptAttribute"}],"ObjectType":"Script"}],"ObjectType":"ScriptContainer"}],"ObjectType":"BilingualFile"}
+{
+  "Containers": [
+    {
+      "Name": "Test.Wow",
+      "Scripts": [
+        {
+          "Name": "Wow",
+          "Block": {
+            "Statements": [
+              {
+                "Name": "wow",
+                "Global": false,
+                "Expression": {
+                  "Value": "Guy",
+                  "ObjectType": "Literal"
+                },
+                "ObjectType": "VariableDeclaration"
+              },
+              {
+                "Name": "Guy",
+                "Emotion": null,
+                "Dialogue": {
+                  "Expressions": [
+                    {
+                      "Value": "Hello, my name is ",
+                      "ObjectType": "Literal"
+                    },
+                    {
+                      "Name": "wow",
+                      "ObjectType": "Variable"
+                    },
+                    {
+                      "Value": ".",
+                      "ObjectType": "Literal"
+                    }
+                  ],
+                  "ObjectType": "InterpolatedString"
+                },
+                "LineId": 1,
+                "TranslationComment": null,
+                "ObjectType": "DialogueStatement"
+              },
+              {
+                "Expression": {
+                  "Name": "Wait",
+                  "Params": {
+                    "Expressions": [
+                      {
+                        "Value": 2.0,
+                        "ObjectType": "Literal"
+                      }
+                    ],
+                    "ObjectType": "Params"
+                  },
+                  "Await": false,
+                  "ObjectType": "FunctionCallExpression"
+                },
+                "ObjectType": "FunctionCallStatement"
+              },
+              {
+                "Name": "Jake",
+                "Emotion": null,
+                "Dialogue": {
+                  "Value": "Nice to meet you, I am Jake.",
+                  "ObjectType": "Literal"
+                },
+                "LineId": 2,
+                "TranslationComment": null,
+                "ObjectType": "DialogueStatement"
+              },
+              {
+                "Name": "apples",
+                "Global": false,
+                "Expression": {
+                  "Value": 1.0,
+                  "ObjectType": "Literal"
+                },
+                "ObjectType": "VariableDeclaration"
+              },
+              {
+                "Name": "Jake",
+                "Emotion": null,
+                "Dialogue": {
+                  "Expressions": [
+                    {
+                      "Value": "I \\\\ \\\\ \\\\\\\\ \\{} have ",
+                      "ObjectType": "Literal"
+                    },
+                    {
+                      "Value": {
+                        "Name": "apples",
+                        "ObjectType": "Variable"
+                      },
+                      "Plurals": {
+                        "One": "## \\#\\# apple",
+                        "Other": "##f apples"
+                      },
+                      "Cardinal": true,
+                      "ObjectType": "LocalizedQuanity"
+                    },
+                    {
+                      "Value": ".",
+                      "ObjectType": "Literal"
+                    }
+                  ],
+                  "ObjectType": "InterpolatedString"
+                },
+                "LineId": 3,
+                "TranslationComment": null,
+                "ObjectType": "DialogueStatement"
+              },
+              {
+                "Name": "Jake",
+                "Emotion": null,
+                "Dialogue": {
+                  "Expressions": [
+                    {
+                      "Value": "This is my ",
+                      "ObjectType": "Literal"
+                    },
+                    {
+                      "Value": {
+                        "Name": "apples",
+                        "ObjectType": "Variable"
+                      },
+                      "Plurals": {
+                        "One": "##",
+                        "Two": "##",
+                        "Few": "##",
+                        "Other": "##"
+                      },
+                      "Cardinal": false,
+                      "ObjectType": "LocalizedQuanity"
+                    },
+                    {
+                      "Value": " apple.",
+                      "ObjectType": "Literal"
+                    }
+                  ],
+                  "ObjectType": "InterpolatedString"
+                },
+                "LineId": 4,
+                "TranslationComment": null,
+                "ObjectType": "DialogueStatement"
+              },
+              {
+                "Script": "Wow.Test",
+                "ObjectType": "RunStatement"
+              }
+            ],
+            "ObjectType": "Block"
+          },
+          "Attributes": [
+            {
+              "Name": "Characters",
+              "Value": {
+                "Value": [
+                  {
+                    "Value": "Guy",
+                    "ObjectType": "Literal"
+                  },
+                  {
+                    "Value": "Jake",
+                    "ObjectType": "Literal"
+                  }
+                ],
+                "ObjectType": "Literal"
+              },
+              "ObjectType": "ScriptAttribute"
+            }
+          ],
+          "ObjectType": "Script"
+        }
+      ],
+      "ObjectType": "ScriptContainer"
+    },
+    {
+      "Name": "Wow",
+      "Scripts": [
+        {
+          "Name": "Test",
+          "Block": {
+            "Statements": [
+              {
+                "Name": "Guy",
+                "Emotion": null,
+                "Dialogue": {
+                  "Value": "I am in a new place!",
+                  "ObjectType": "Literal"
+                },
+                "LineId": 7,
+                "TranslationComment": null,
+                "ObjectType": "DialogueStatement"
+              },
+              {
+                "ObjectType": "BreakStatement"
+              },
+              {
+                "VariableDeclaration": {
+                  "Name": "i",
+                  "Global": false,
+                  "Expression": {
+                    "Value": 0.0,
+                    "ObjectType": "Literal"
+                  },
+                  "ObjectType": "VariableDeclaration"
+                },
+                "LoopCondition": {
+                  "Left": {
+                    "Name": "i",
+                    "ObjectType": "Variable"
+                  },
+                  "Operator": "LessThanEqualTo",
+                  "Right": {
+                    "Value": 10.0,
+                    "ObjectType": "Literal"
+                  },
+                  "ObjectType": "OprExpression"
+                },
+                "AlterIndex": {
+                  "Left": {
+                    "Name": "i",
+                    "ObjectType": "Variable"
+                  },
+                  "Operator": "PlusPlus",
+                  "Right": null,
+                  "ObjectType": "OprExpression"
+                },
+                "Block": {
+                  "Statements": [
+                    {
+                      "Expression": {
+                        "Left": {
+                          "Name": "i",
+                          "ObjectType": "Variable"
+                        },
+                        "Operator": "EqualTo",
+                        "Right": {
+                          "Value": 4.0,
+                          "ObjectType": "Literal"
+                        },
+                        "ObjectType": "OprExpression"
+                      },
+                      "ElseIfStatements": [
+                        {
+                          "Expression": {
+                            "Left": {
+                              "Name": "i",
+                              "ObjectType": "Variable"
+                            },
+                            "Operator": "EqualTo",
+                            "Right": {
+                              "Value": 7.0,
+                              "ObjectType": "Literal"
+                            },
+                            "ObjectType": "OprExpression"
+                          },
+                          "Block": {
+                            "Statements": [
+                              {
+                                "ObjectType": "BreakStatement"
+                              }
+                            ],
+                            "ObjectType": "Block"
+                          },
+                          "ObjectType": "ElseIfStatement"
+                        }
+                      ],
+                      "ElseStatement": null,
+                      "Block": {
+                        "Statements": [
+                          {
+                            "Item": "lol",
+                            "Collection": {
+                              "Value": [
+                                {
+                                  "Value": 10.0,
+                                  "ObjectType": "Literal"
+                                },
+                                {
+                                  "Value": 20.0,
+                                  "ObjectType": "Literal"
+                                },
+                                {
+                                  "Value": 30.0,
+                                  "ObjectType": "Literal"
+                                }
+                              ],
+                              "ObjectType": "Literal"
+                            },
+                            "Block": {
+                              "Statements": [
+                                {
+                                  "Expression": {
+                                    "Left": {
+                                      "Name": "lol",
+                                      "ObjectType": "Variable"
+                                    },
+                                    "Operator": "EqualTo",
+                                    "Right": {
+                                      "Value": 20.0,
+                                      "ObjectType": "Literal"
+                                    },
+                                    "ObjectType": "OprExpression"
+                                  },
+                                  "ElseIfStatements": [],
+                                  "ElseStatement": null,
+                                  "Block": {
+                                    "Statements": [
+                                      {
+                                        "ObjectType": "ContinueStatement"
+                                      }
+                                    ],
+                                    "ObjectType": "Block"
+                                  },
+                                  "ObjectType": "IfStatement"
+                                },
+                                {
+                                  "Name": "Jake",
+                                  "Emotion": null,
+                                  "Dialogue": {
+                                    "Expressions": [
+                                      {
+                                        "Name": "i",
+                                        "ObjectType": "Variable"
+                                      },
+                                      {
+                                        "Value": ".",
+                                        "ObjectType": "Literal"
+                                      },
+                                      {
+                                        "Name": "lol",
+                                        "ObjectType": "Variable"
+                                      }
+                                    ],
+                                    "ObjectType": "InterpolatedString"
+                                  },
+                                  "LineId": null,
+                                  "TranslationComment": null,
+                                  "ObjectType": "DialogueStatement"
+                                },
+                                {
+                                  "Expression": {
+                                    "Name": "Wait",
+                                    "Params": {
+                                      "Expressions": [
+                                        {
+                                          "Value": 2.0,
+                                          "ObjectType": "Literal"
+                                        }
+                                      ],
+                                      "ObjectType": "Params"
+                                    },
+                                    "Await": false,
+                                    "ObjectType": "FunctionCallExpression"
+                                  },
+                                  "ObjectType": "FunctionCallStatement"
+                                }
+                              ],
+                              "ObjectType": "Block"
+                            },
+                            "ObjectType": "ForEachStatement"
+                          },
+                          {
+                            "ObjectType": "ContinueStatement"
+                          }
+                        ],
+                        "ObjectType": "Block"
+                      },
+                      "ObjectType": "IfStatement"
+                    },
+                    {
+                      "Name": "Jake",
+                      "Emotion": null,
+                      "Dialogue": {
+                        "Expressions": [
+                          {
+                            "Name": "i",
+                            "ObjectType": "Variable"
+                          }
+                        ],
+                        "ObjectType": "InterpolatedString"
+                      },
+                      "LineId": null,
+                      "TranslationComment": null,
+                      "ObjectType": "DialogueStatement"
+                    },
+                    {
+                      "Expression": {
+                        "Name": "Wait",
+                        "Params": {
+                          "Expressions": [
+                            {
+                              "Value": 2.0,
+                              "ObjectType": "Literal"
+                            }
+                          ],
+                          "ObjectType": "Params"
+                        },
+                        "Await": false,
+                        "ObjectType": "FunctionCallExpression"
+                      },
+                      "ObjectType": "FunctionCallStatement"
+                    }
+                  ],
+                  "ObjectType": "Block"
+                },
+                "ObjectType": "ForStatement"
+              },
+              {
+                "Name": "yay",
+                "Global": false,
+                "Expression": {
+                  "Value": 0.0,
+                  "ObjectType": "Literal"
+                },
+                "ObjectType": "VariableDeclaration"
+              },
+              {
+                "Expression": {
+                  "Left": {
+                    "Name": "yay",
+                    "ObjectType": "Variable"
+                  },
+                  "Operator": "LessThanEqualTo",
+                  "Right": {
+                    "Value": 9.0,
+                    "ObjectType": "Literal"
+                  },
+                  "ObjectType": "OprExpression"
+                },
+                "Block": {
+                  "Statements": [
+                    {
+                      "Expression": {
+                        "Left": {
+                          "Name": "yay",
+                          "ObjectType": "Variable"
+                        },
+                        "Operator": "PlusPlus",
+                        "Right": null,
+                        "ObjectType": "OprExpression"
+                      },
+                      "ObjectType": "IncrementDecrementStatement"
+                    },
+                    {
+                      "Expression": {
+                        "Left": {
+                          "Name": "yay",
+                          "ObjectType": "Variable"
+                        },
+                        "Operator": "EqualTo",
+                        "Right": {
+                          "Value": 2.0,
+                          "ObjectType": "Literal"
+                        },
+                        "ObjectType": "OprExpression"
+                      },
+                      "ElseIfStatements": [],
+                      "ElseStatement": null,
+                      "Block": {
+                        "Statements": [
+                          {
+                            "ObjectType": "ContinueStatement"
+                          }
+                        ],
+                        "ObjectType": "Block"
+                      },
+                      "ObjectType": "IfStatement"
+                    },
+                    {
+                      "Expression": {
+                        "Left": {
+                          "Name": "yay",
+                          "ObjectType": "Variable"
+                        },
+                        "Operator": "EqualTo",
+                        "Right": {
+                          "Value": 4.0,
+                          "ObjectType": "Literal"
+                        },
+                        "ObjectType": "OprExpression"
+                      },
+                      "ElseIfStatements": [],
+                      "ElseStatement": null,
+                      "Block": {
+                        "Statements": [
+                          {
+                            "ObjectType": "BreakStatement"
+                          }
+                        ],
+                        "ObjectType": "Block"
+                      },
+                      "ObjectType": "IfStatement"
+                    },
+                    {
+                      "Name": "Cool",
+                      "Emotion": null,
+                      "Dialogue": {
+                        "Expressions": [
+                          {
+                            "Name": "yay",
+                            "ObjectType": "Variable"
+                          }
+                        ],
+                        "ObjectType": "InterpolatedString"
+                      },
+                      "LineId": null,
+                      "TranslationComment": null,
+                      "ObjectType": "DialogueStatement"
+                    },
+                    {
+                      "Expression": {
+                        "Name": "Wait",
+                        "Params": {
+                          "Expressions": [
+                            {
+                              "Value": 2.0,
+                              "ObjectType": "Literal"
+                            }
+                          ],
+                          "ObjectType": "Params"
+                        },
+                        "Await": false,
+                        "ObjectType": "FunctionCallExpression"
+                      },
+                      "ObjectType": "FunctionCallStatement"
+                    }
+                  ],
+                  "ObjectType": "Block"
+                },
+                "ObjectType": "WhileStatement"
+              },
+              {
+                "Name": {
+                  "Name": "yay",
+                  "ObjectType": "Variable"
+                },
+                "Expression": {
+                  "Value": 0.0,
+                  "ObjectType": "Literal"
+                },
+                "ObjectType": "VariableAssignment"
+              },
+              {
+                "Expression": {
+                  "Left": {
+                    "Name": "yay",
+                    "ObjectType": "Variable"
+                  },
+                  "Operator": "LessThanEqualTo",
+                  "Right": {
+                    "Value": 9.0,
+                    "ObjectType": "Literal"
+                  },
+                  "ObjectType": "OprExpression"
+                },
+                "Block": {
+                  "Statements": [
+                    {
+                      "Expression": {
+                        "Left": {
+                          "Name": "yay",
+                          "ObjectType": "Variable"
+                        },
+                        "Operator": "PlusPlus",
+                        "Right": null,
+                        "ObjectType": "OprExpression"
+                      },
+                      "ObjectType": "IncrementDecrementStatement"
+                    },
+                    {
+                      "Expression": {
+                        "Left": {
+                          "Name": "yay",
+                          "ObjectType": "Variable"
+                        },
+                        "Operator": "EqualTo",
+                        "Right": {
+                          "Value": 2.0,
+                          "ObjectType": "Literal"
+                        },
+                        "ObjectType": "OprExpression"
+                      },
+                      "ElseIfStatements": [],
+                      "ElseStatement": null,
+                      "Block": {
+                        "Statements": [
+                          {
+                            "ObjectType": "ContinueStatement"
+                          }
+                        ],
+                        "ObjectType": "Block"
+                      },
+                      "ObjectType": "IfStatement"
+                    },
+                    {
+                      "Expression": {
+                        "Left": {
+                          "Name": "yay",
+                          "ObjectType": "Variable"
+                        },
+                        "Operator": "EqualTo",
+                        "Right": {
+                          "Value": 4.0,
+                          "ObjectType": "Literal"
+                        },
+                        "ObjectType": "OprExpression"
+                      },
+                      "ElseIfStatements": [],
+                      "ElseStatement": null,
+                      "Block": {
+                        "Statements": [
+                          {
+                            "ObjectType": "BreakStatement"
+                          }
+                        ],
+                        "ObjectType": "Block"
+                      },
+                      "ObjectType": "IfStatement"
+                    },
+                    {
+                      "Name": "Cool",
+                      "Emotion": null,
+                      "Dialogue": {
+                        "Expressions": [
+                          {
+                            "Name": "yay",
+                            "ObjectType": "Variable"
+                          }
+                        ],
+                        "ObjectType": "InterpolatedString"
+                      },
+                      "LineId": null,
+                      "TranslationComment": null,
+                      "ObjectType": "DialogueStatement"
+                    },
+                    {
+                      "Expression": {
+                        "Name": "Wait",
+                        "Params": {
+                          "Expressions": [
+                            {
+                              "Value": 2.0,
+                              "ObjectType": "Literal"
+                            }
+                          ],
+                          "ObjectType": "Params"
+                        },
+                        "Await": false,
+                        "ObjectType": "FunctionCallExpression"
+                      },
+                      "ObjectType": "FunctionCallStatement"
+                    }
+                  ],
+                  "ObjectType": "Block"
+                },
+                "ObjectType": "DoWhileStatement"
+              },
+              {
+                "Name": "Jake",
+                "Emotion": null,
+                "Dialogue": {
+                  "Value": "Done!",
+                  "ObjectType": "Literal"
+                },
+                "LineId": null,
+                "TranslationComment": null,
+                "ObjectType": "DialogueStatement"
+              }
+            ],
+            "ObjectType": "Block"
+          },
+          "Attributes": [
+            {
+              "Name": "Characters",
+              "Value": {
+                "Value": [
+                  {
+                    "Value": "Jake",
+                    "ObjectType": "Literal"
+                  }
+                ],
+                "ObjectType": "Literal"
+              },
+              "ObjectType": "ScriptAttribute"
+            }
+          ],
+          "ObjectType": "Script"
+        }
+      ],
+      "ObjectType": "ScriptContainer"
+    }
+  ],
+  "ObjectType": "BilingualFile"
+}

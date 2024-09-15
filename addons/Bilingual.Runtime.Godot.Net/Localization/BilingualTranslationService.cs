@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 using Expression = Bilingual.Runtime.Godot.Net.BilingualTypes.Expressions.Expression;
 using Script = Bilingual.Runtime.Godot.Net.BilingualTypes.Containers.Script;
 
-namespace Bilingual.Runtime.Godot.Net.Nodes
+namespace Bilingual.Runtime.Godot.Net.Localization
 {
     /// <summary>
     /// Holds translation data.

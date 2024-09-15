@@ -1,5 +1,4 @@
-﻿using Bilingual.Runtime.Godot.Net.BilingualTypes.Statements;
-using Bilingual.Runtime.Godot.Net.VM;
+﻿using Bilingual.Runtime.Godot.Net.VM;
 
 namespace Bilingual.Runtime.Godot.Net.Scopes
 {
