@@ -110,5 +110,14 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
             // Variable does not exist.
             return false;
         }
+
+        /// <summary>Remove a variable.</summary>
+        public void RemoveVariable(string name)
+        {
+            if (!VariableNameExists(name, out object _, out Scope scope))
+                 throw new ScopeVariableException($"The variable, {name}, does not exist.");
+
+            scope.Variables.Remove(name);
+        }
     }
 }
