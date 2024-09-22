@@ -477,13 +477,13 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <summary>Select an option for a choose statement.</summary>
         /// <param name="option">The option to select.</param>
         /// <exception cref="StatementErrorException">When there is no choose statement stored.</exception>
-        public void SelectOption(string option)
+        public void SelectOption(int index)
         {
             if (storedChooseStatement is null) throw new StatementErrorException("No stored choose statement.");
             if (CurrentScope is null) throw new InvalidOperationException("There are no more scopes.");
 
             var chooseScope = (ChooseScope)CurrentScope;
-            chooseScope.SelectOption(option);
+            chooseScope.SelectOption(index);
 
             storedChooseStatement = null;
         }

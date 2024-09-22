@@ -196,5 +196,8 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// <param name="name">Name of the attribute.</param>
         public bool HasScriptAttribute(string name)
             => VirtualMachine.GetScriptAttributes().ContainsKey(name);
+
+        ///<summary>Select an option for a choose block.</summary>
+        public void SelectOption(int index) => VirtualMachine.SelectOption(index);
     }
 }

@@ -15,7 +15,10 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
         public List<ChooseBlock> Blocks => Statement.Blocks;
 
         /// <summary>The list of options and their blocks.</summary>
-        private readonly Dictionary<string, Block> options = [];
+        private readonly List<Block> optionsBlocks = [];
+
+        /// <summary>The option texts.</summary>
+        private readonly List<string> optionTexts = [];
 
         /// <summary>If an option has been selected yet.</summary>
         private bool selectedOption;
@@ -25,26 +28,27 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
         {
             foreach (var block in Blocks)
             {
+                optionsBlocks.Add(block.Block);
                 // Options are strings so convert any non-string objects to a string.
-                options.Add(VirtualMachine.EvaluateExpression(block.Option).ToString() ?? "", block.Block);
+                optionTexts.Add(VirtualMachine.EvaluateExpression(block.Option).ToString() ?? "");
             }
         }
 
         /// <summary>Get the options for the choose block.</summary>
         /// <returns>A list of options.</returns>
-        public List<string> GetOptions() => [.. options.Keys];
+        public List<string> GetOptions() => optionTexts;
 
         /// <summary>Choose the option and set the statements for this scope.</summary>
-        /// <param name="option">The option to select.</param>
+        /// <param name="index">The index of the option to select.</param>
         /// <exception cref="ArgumentException">If the option is not in the list of options.</exception>
-        public void SelectOption(string option)
+        public void SelectOption(int index)
         {
-            if (!options.TryGetValue(option, out Block? block))
+            if (!CheckIndex(index))
             {
-                throw new ArgumentException("Option does not exist in list.", nameof(option));
+                throw new ArgumentException("Option does not exist in list.", nameof(index));
             }
 
-            Statements = block.Statements;
+            Statements = Blocks[index].Block;
             selectedOption = true;
         }
 
@@ -52,6 +56,11 @@ namespace Bilingual.Runtime.Godot.Net.Scopes
         {
             if (!selectedOption) throw new InvalidOperationException("Did not select an option.");
             return base.GetNextStatement();
+        }
+
+        private bool CheckIndex(int i)
+        {
+            return i > 0 || i < Blocks.Count;
         }
     }
 }
