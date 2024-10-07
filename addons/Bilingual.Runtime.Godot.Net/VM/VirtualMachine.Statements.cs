@@ -90,7 +90,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
 
         /// <summary> Get the next line of dialogue and run all statements in between.</summary>
         /// <returns>A <see cref="BilingualResult"/>.</returns>
-        public BilingualResult GetNextLine()
+        public async Task<BilingualResult> GetNextLine()
         {
             if (UseVmToWait && paused)
             {
@@ -105,13 +105,13 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 // set null before so we dont keep calling the stored when we dont need it
                 // if this block needs to run again, RunInterpolatedDialogue will set it again
                 storedDialogueStatement = null;
-                return RunInterpolatedDialogue(copyStored, true);
+                return await RunInterpolatedDialogue(copyStored, true);
             }
 
             var statement = CurrentScope.GetNextStatement();
 
             // Scopes return null when they are over.
-            while(statement is null)
+            while (statement is null)
             {
                 // Get rid of current scope.
                 _ = Scopes.Pop();
@@ -126,14 +126,14 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 statement = CurrentScope.GetNextStatement();
             }
 
-            return RunStatement(statement);
+            return await RunStatement(statement);
         }
 
         /// <summary>Run the statements.</summary>
         /// <param name="statement">The statement to run.</param>
         /// <returns>A bilingual result.</returns>
         /// <exception cref="NotImplementedException"></exception>
-        private BilingualResult RunStatement(Statement statement)
+        private async Task<BilingualResult> RunStatement(Statement statement)
         {
             switch (statement)
             {
@@ -141,7 +141,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     return new ScriptOver();
 
                 case DialogueStatement dialogueStatement:
-                    return RunDialogueStatement(dialogueStatement);
+                    return await RunDialogueStatement(dialogueStatement);
 
                 case ChooseStatement:
                 case IfStatement:
@@ -149,7 +149,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 case WhileStatement:
                 case ForEachStatement:
                 case ForStatement:
-                    return RunBlockedScope(statement);
+                    return await RunBlockedScope(statement);
 
                 case VariableAssignment:
                 case VariableDeclaration:
@@ -186,7 +186,9 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     }
                     else
                     {
-                        _ = RunCommandStatement(functionCallStatement.Expression, false);
+                        var result = RunCommandStatement(functionCallStatement.Expression, false);
+                        if (result != null)
+                            await result;
                     }
                     break;
 
@@ -195,7 +197,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     break;
 
                 case InjectStatement injectStatement:
-                    return RunInjectStatement(injectStatement);
+                    return await RunInjectStatement(injectStatement);
 
                 case EndInjectStatement endInject:
                     currentScriptName = endInject.PreviousScriptName;
@@ -205,7 +207,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     throw new NotImplementedException();
             }
 
-            return GetNextLine();
+            return await GetNextLine();
         }
 
         /// <summary>Move to the parent loop scope.</summary>
@@ -253,7 +255,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <returns>A <see cref="DialogueResult"/>.</returns>
         /// <exception cref="InvalidOperationException">When the expression in the dialogue
         /// is not a string <see cref="Literal"/> or an <see cref="InterpolatedString"/>.</exception>
-        private DialogueResult RunDialogueStatement(DialogueStatement statement)
+        private async Task<DialogueResult> RunDialogueStatement(DialogueStatement statement)
         {
             var dialogue = statement.Dialogue;
             if (!ShouldTranslate)
@@ -278,7 +280,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
             }
             else if (dialogueText is InterpolatedString)
             {
-                return RunInterpolatedDialogue(statement, false);
+                return await RunInterpolatedDialogue(statement, false);
             }
 
             throw new InvalidOperationException("Dialogue expression not supported.");
@@ -289,7 +291,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <param name="moreLeft">If there is more of the line left.</param>
         /// <param name="getFullString">If the call is actually getting the full text of the statement.</param>
         /// <returns>A <see cref="DialogueResult"/>.</returns>
-        private DialogueResult RunInterpolatedDialogue(DialogueStatement statement, bool prevPaused, 
+        private async Task<DialogueResult> RunInterpolatedDialogue(DialogueStatement statement, bool prevPaused,
             bool getFullString = false)
         {
             var interpolated = (InterpolatedString)statement.Dialogue;
@@ -327,14 +329,14 @@ namespace Bilingual.Runtime.Godot.Net.VM
                         {
                             var seconds = GetWaitTime(function);
                             // Get the interpolated dialogue with functions removed.
-                            var fullString = RunInterpolatedDialogue(statement, 
-                                prevPaused, true).Dialogue;
-                            var rest = new InterpolatedString(interpolated.Expressions[(i + 1) ..]);
+                            var fullString = (await RunInterpolatedDialogue(statement,
+                                prevPaused, true)).Dialogue;
+                            var rest = new InterpolatedString(interpolated.Expressions[(i + 1)..]);
 
                             // copy the statement so the original is not altered.
                             storedDialogueStatement = statement.CopyWithNewDialogue(rest);
 
-                            var result = new ScriptPausedInlineResult(dialogue, statement, seconds, 
+                            var result = new ScriptPausedInlineResult(dialogue, statement, seconds,
                                 prevPaused ? "" : fullString, prevPaused);
 
                             if (UseVmToWait)
@@ -349,7 +351,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     }
                     else
                     {
-                        dialogueChunk = RunCommandStatement(function, true) ?? "null";
+                        dialogueChunk = await RunCommandStatement(function, true) ?? "null";
                     }
                 }
                 else if (expression is LocalizedQuanity quanity)
@@ -374,7 +376,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     if (matches.Count == 0) dialogueChunk = localizedString;
                     else
                     {
-                        dialogueChunk = hashTagRegex.Replace(localizedString, (match) => 
+                        dialogueChunk = hashTagRegex.Replace(localizedString, (match) =>
                             ReplaceHashtag(match, value, quanity.Cardinal)
                         );
                     }
@@ -399,7 +401,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <returns>The string.</returns>
         private static string ReplaceHashtag(Match match, double value, bool cardinal)
         {
-            if (match.Length == 1) 
+            if (match.Length == 1)
                 return value.ToString();
             else
             {
@@ -435,16 +437,16 @@ namespace Bilingual.Runtime.Godot.Net.VM
                 {
                     long longValue = (long)value;
                     int intValue = (int)value;
-                    var words = cardinal 
-                        ? longValue.ToWords(form, gender, culture) 
+                    var words = cardinal
+                        ? longValue.ToWords(form, gender, culture)
                         : intValue.ToOrdinalWords(gender, form, culture);
 
-                    if (capitalize) 
+                    if (capitalize)
                         return words.Transform(culture, To.SentenceCase);
-                    else 
+                    else
                         return words;
                 }
-                
+
                 return value.ToString();
             }
         }
@@ -454,7 +456,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <exception cref="InvalidOperationException">If the statement is not handled.</exception>
         private void RunVariableRelatedStatements(Statement statement)
         {
-            if (CurrentScope is null) 
+            if (CurrentScope is null)
                 throw new InvalidOperationException("Scope cannot be null here.");
 
             if (statement is VariableDeclaration declaration)
@@ -492,7 +494,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <param name="statement">The blocked scope.</param>
         /// <returns>A bilingual result.</returns>
         /// <exception cref="InvalidOperationException">When the scoped statement is not recognized.</exception>
-        private BilingualResult RunBlockedScope(Statement statement)
+        private async Task<BilingualResult> RunBlockedScope(Statement statement)
         {
             switch (statement)
             {
@@ -532,7 +534,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
                     throw new InvalidOperationException("This blocked scope is not recognized.");
             }
 
-            return GetNextLine();
+            return await GetNextLine();
         }
 
         /// <summary>
@@ -541,7 +543,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <returns>A string or null.</returns>
         /// <param name="funcExpression">The function to call.</param>
         /// <param name="inline">If the command is being run inline.</param>
-        public string? RunCommandStatement(FunctionCallExpression funcExpression, bool inline)
+        public async Task<string>? RunCommandStatement(FunctionCallExpression funcExpression, bool inline)
         {
             var name = funcExpression.Name;
             List<object> parameters = [];
@@ -554,25 +556,22 @@ namespace Bilingual.Runtime.Godot.Net.VM
             if (CommandStore.Commands.TryGetValue(name, out SynchronousFunctionDelegate? sync))
             {
                 sync(parameters);
-                return null;
+                return null!;
             }
             else if (CommandStore.AsyncCommands.TryGetValue(name, out AsyncFunctionDelegate? async))
             {
                 if (funcExpression.Await)
                 {
-                    // https://stackoverflow.com/a/55516918
-                    // this acts like 'await async(..)'
-                    var task = Task.Run(() => async(parameters));
-                    task.Wait();
+                    await async(parameters);
                 }
                 else
                 {
                     // run asyncronously
-                    async(parameters);
+                    _ = async(parameters);
                 }
-                return null;
+                return null!;
             }
-            else if (inline && CommandStore.InlineCommands.TryGetValue(name, 
+            else if (inline && CommandStore.InlineCommands.TryGetValue(name,
                 out InlineSyncronousFuncDelegate? inlineFunc))
             {
                 return inlineFunc(parameters);
@@ -586,10 +585,10 @@ namespace Bilingual.Runtime.Godot.Net.VM
         /// <summary>Run the inject statement.</summary>
         /// <param name="inject">The script to inject.</param>
         /// <returns>The next line of dialogue.</returns>
-        private BilingualResult RunInjectStatement(InjectStatement inject)
+        private async Task<BilingualResult> RunInjectStatement(InjectStatement inject)
         {
             var scope = CurrentScope ?? throw new InvalidOperationException("CurrentScope should not be null");
-            
+
             if (Scripts.TryGetValue(inject.Script, out Script? script))
             {
                 scope.InjectStatements(script.Block);
@@ -603,7 +602,7 @@ namespace Bilingual.Runtime.Godot.Net.VM
             currentScriptName = inject.Script;
             ScriptStartedRunningCallback(GetScriptAttributes());
 
-            return GetNextLine();
+            return await GetNextLine();
         }
 
         /// <summary>Get the attributes of the current running script.</summary>

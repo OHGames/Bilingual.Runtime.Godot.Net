@@ -36,3 +36,8 @@ size_flags_horizontal = 4
 text = "Yay!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="IsPaused" type="Label" parent="CanvasLayer"]
+unique_name_in_owner = true
+offset_right = 163.0
+offset_bottom = 48.0

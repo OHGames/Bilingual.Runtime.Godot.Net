@@ -11,6 +11,7 @@ using Script = Bilingual.Runtime.Godot.Net.BilingualTypes.Containers.Script;
 using AttributeDictionary = System.Collections.Generic.Dictionary<string, object>;
 using System;
 using Bilingual.Runtime.Godot.Net.Localization;
+using System.Threading.Tasks;
 
 namespace Bilingual.Runtime.Godot.Net.Nodes
 {
@@ -141,7 +142,7 @@ namespace Bilingual.Runtime.Godot.Net.Nodes
         /// Return the next line of dialogue from the currently loaded script.
         /// </summary>
         /// <returns>A result.</returns>
-        public BilingualResult GetNextLine() => VirtualMachine.GetNextLine();
+        public async Task<BilingualResult> GetNextLine() => await VirtualMachine.GetNextLine();
 
         /// <summary>Add a new callback for when dialogue is paused.
         /// Only called when <see cref="UseVmToWait"/> is true.

@@ -69,6 +69,30 @@
                 "ObjectType": "DialogueStatement"
               },
               {
+                "Expression": {
+                  "Name": "Test.AsyncTestCommand",
+                  "Params": {
+                    "Expressions": [],
+                    "ObjectType": "Params"
+                  },
+                  "Await": true,
+                  "ObjectType": "FunctionCallExpression"
+                },
+                "ObjectType": "FunctionCallStatement"
+              },
+              {
+                "Expression": {
+                  "Name": "Test.AsyncTestCommand",
+                  "Params": {
+                    "Expressions": [],
+                    "ObjectType": "Params"
+                  },
+                  "Await": false,
+                  "ObjectType": "FunctionCallExpression"
+                },
+                "ObjectType": "FunctionCallStatement"
+              },
+              {
                 "Name": "apples",
                 "Global": false,
                 "Expression": {

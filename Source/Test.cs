@@ -14,18 +14,21 @@ namespace Bilingual.Runtime.Godot.Net
         private bool dialoguePaused;
         private DialogueRunner runner = null!;
         private Label label = null!;
+        private Label pausedLabel = null!;
+        private bool getNextLine = true;
 
-        public override void _Ready()
+        public override async void _Ready()
         {
             CommandStore.AddCommand($"Test.{nameof(TestCommand)}", TestCommand);
             CommandStore.AddCommand($"Test.{nameof(AsyncTestCommand)}", AsyncTestCommand);
 
             runner = GetNode<DialogueRunner>("DialogueRunner");
             label = GetNode<Label>("%Label");
+            pausedLabel = GetNode<Label>("%IsPaused");
             if (runner is null) throw new InvalidOperationException("Node cannot be found.");
 
-            runner.DialoguePaused += (result) => dialoguePaused = true;
-            runner.DialogueResumed += () => dialoguePaused = false;
+            runner.DialoguePaused += DialoguePaused;
+            runner.DialogueResumed += DialogueResumed;
             runner.ScriptStartedRunning += (dict) =>
             {
                 if (dict.TryGetValue("Characters", out object? chars))
@@ -36,18 +39,39 @@ namespace Bilingual.Runtime.Godot.Net
             };
 
             runner.RunScript("Test.Wow.Wow");
+            pausedLabel.Text = $"paused: {dialoguePaused}";
+            await GetAndDisplay(runner);
         }
 
-        public override void _PhysicsProcess(double delta)
+        private void DialoguePaused(BilingualResult result)
         {
-            GetAndDisplay(runner!);
+            dialoguePaused = true; 
+            pausedLabel.Text = $"paused: {dialoguePaused}";
         }
 
-        public void GetAndDisplay(DialogueRunner runner)
+        private async void DialogueResumed()
+        {
+            dialoguePaused = false; 
+            pausedLabel.Text = $"paused: {dialoguePaused}";
+            getNextLine = true; 
+            await GetAndDisplay(runner);
+        }
+
+        public override async void _PhysicsProcess(double delta)
+        {
+            if (dialoguePaused) return;
+            if (Input.IsActionJustPressed("continue_dialogue") && !getNextLine)
+            {
+                getNextLine = true;
+                await GetAndDisplay(runner);
+            }
+        }
+
+        public async Task GetAndDisplay(DialogueRunner runner)
         {
             if (dialoguePaused) return;
 
-            var line = runner.GetNextLine();
+            var line = await runner.GetNextLine();
             switch (line)
             {
                 case DialogueResult dialogue:
@@ -64,6 +88,8 @@ namespace Bilingual.Runtime.Godot.Net
                 default:
                     break;
             }
+
+            getNextLine = false; 
         }
 
         //private void Wait(double seconds)
@@ -82,8 +108,9 @@ namespace Bilingual.Runtime.Godot.Net
 
         public async Task AsyncTestCommand(List<object> parameters)
         {
-            await Task.Delay(1000);
+            await Task.Delay(2000);
             var i = 0;
+            GD.PushWarning("AsyncTestCommand finished.");
         }
     }
 }
